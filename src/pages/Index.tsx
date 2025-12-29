@@ -1,13 +1,29 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Helmet } from "react-helmet-async";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { HeroSection } from "@/components/home/HeroSection";
+import { ProductGrid } from "@/components/products/ProductGrid";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <>
+      <Helmet>
+        <title>KeyStore - Key Bản Quyền Phần Mềm & Game Chính Hãng</title>
+        <meta
+          name="description"
+          content="Cung cấp key bản quyền phần mềm, game, tài khoản premium chính hãng với giá tốt nhất. Giao key tự động 24/7, bảo hành uy tín."
+        />
+      </Helmet>
+
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1">
+          <HeroSection />
+          <ProductGrid />
+        </main>
+        <Footer />
       </div>
-    </div>
+    </>
   );
 };
 
