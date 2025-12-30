@@ -1,12 +1,16 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, Menu, Search, User, X } from "lucide-react";
+import { ShoppingCart, Menu, Search, User, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { user, isAdmin, signOut } = useAuth();
+  const { cartCount } = useCart();
 
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/50">
@@ -63,19 +67,36 @@ export function Header() {
             </Button>
 
             {/* Cart */}
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-accent-foreground text-xs font-bold rounded-full flex items-center justify-center">
-                0
-              </span>
-            </Button>
-
-            {/* User */}
-            <Link to="/admin">
-              <Button variant="ghost" size="icon">
-                <User className="w-5 h-5" />
+            <Link to="/cart">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="w-5 h-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-accent-foreground text-xs font-bold rounded-full flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
+
+            {/* User */}
+            {user ? (
+              <div className="flex items-center gap-2">
+                {isAdmin && (
+                  <Link to="/admin">
+                    <Button variant="ghost" size="sm">Admin</Button>
+                  </Link>
+                )}
+                <Button variant="ghost" size="icon" onClick={signOut}>
+                  <LogOut className="w-5 h-5" />
+                </Button>
+              </div>
+            ) : (
+              <Link to="/auth">
+                <Button variant="ghost" size="icon">
+                  <User className="w-5 h-5" />
+                </Button>
+              </Link>
+            )}
 
             {/* Mobile Menu Toggle */}
             <Button
