@@ -505,6 +505,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_product_keys: {
+        Args: {
+          p_buyer_id: string
+          p_order_id: string
+          p_price_tier_id: string
+          p_product_id: string
+          p_quantity: number
+          p_unit_price: number
+        }
+        Returns: {
+          key_id: string
+          key_value: string
+          order_item_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

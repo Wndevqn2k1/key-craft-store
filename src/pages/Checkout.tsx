@@ -87,7 +87,7 @@ const Checkout = () => {
 
     setIsProcessing(true);
     try {
-      // Create order
+      // Create order first
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -101,48 +101,25 @@ const Checkout = () => {
 
       if (orderError) throw orderError;
 
-      const keys: PurchasedKey[] = [];
-
-      // Create order items and assign keys
+      // Assign keys using secure RPC function with row locking
+      // This prevents race conditions where multiple users could get the same key
       for (const item of cartItems) {
-        // Get available key
-        const { data: keyData, error: keyError } = await supabase
-          .from('product_keys')
-          .select('id, key_value')
-          .eq('product_id', item.product_id)
-          .eq('price_tier_id', item.price_tier_id)
-          .eq('status', 'available')
-          .limit(item.quantity);
-
-        if (keyError) throw keyError;
-
-        for (let i = 0; i < item.quantity; i++) {
-          const key = keyData?.[i];
-          const keyId = key?.id;
-          
-          // Create order item
-          await supabase.from('order_items').insert({
-            order_id: order.id,
-            product_id: item.product_id,
-            price_tier_id: item.price_tier_id,
-            quantity: 1,
-            unit_price: item.price_tier.price,
-            key_id: keyId,
+        const { error: assignError } = await supabase
+          .rpc('assign_product_keys', {
+            p_order_id: order.id,
+            p_product_id: item.product_id,
+            p_price_tier_id: item.price_tier_id,
+            p_quantity: item.quantity,
+            p_unit_price: item.price_tier.price,
+            p_buyer_id: user.id,
           });
 
-          // Update key status and collect key info
-          if (keyId && key?.key_value) {
-            await supabase
-              .from('product_keys')
-              .update({ status: 'sold', buyer_id: user.id, sold_at: new Date().toISOString() })
-              .eq('id', keyId);
-
-            keys.push({
-              productName: item.product.name,
-              duration: item.price_tier.duration_label,
-              keyValue: key.key_value,
-            });
+        if (assignError) {
+          // Handle insufficient keys gracefully
+          if (assignError.message.includes('Không đủ key')) {
+            throw new Error('Sản phẩm đã hết hàng. Vui lòng thử lại sau.');
           }
+          throw assignError;
         }
       }
 
