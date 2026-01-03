@@ -200,10 +200,40 @@ export function Header() {
               </Button>
             </Link>
 
-            {/* Menu Toggle - All screens */}
+            {/* Desktop User Actions - Hidden on mobile */}
+            <div className="hidden md:flex items-center gap-2">
+              {user ? (
+                <>
+                  <Link to="/profile">
+                    <Button variant="ghost" size="icon">
+                      <User className="w-5 h-5" />
+                    </Button>
+                  </Link>
+                  {isAdmin && (
+                    <Link to="/admin">
+                      <Button variant="outline" size="sm" className="text-xs">
+                        Quản trị
+                      </Button>
+                    </Link>
+                  )}
+                  <Button variant="ghost" size="icon" onClick={() => signOut()}>
+                    <LogOut className="w-5 h-5" />
+                  </Button>
+                </>
+              ) : (
+                <Link to="/auth">
+                  <Button variant="default" size="sm">
+                    Đăng nhập
+                  </Button>
+                </Link>
+              )}
+            </div>
+
+            {/* Menu Toggle - Mobile only */}
             <Button
               variant="ghost"
               size="icon"
+              className="md:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -254,9 +284,9 @@ export function Header() {
           </div>
         )}
 
-        {/* Menu Dropdown */}
+        {/* Mobile Menu Dropdown */}
         {isMenuOpen && (
-          <nav className="pb-4 border-t border-border/50 pt-4 animate-fade-in">
+          <nav className="md:hidden pb-4 border-t border-border/50 pt-4 animate-fade-in">
             <div className="flex flex-col gap-2">
               <Link
                 to="/products"
