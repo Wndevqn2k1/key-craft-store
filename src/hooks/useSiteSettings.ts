@@ -14,6 +14,7 @@ export interface SiteSettings {
   bank_account: string;
   bank_holder: string;
   bank_branch: string;
+  bank_bin: string; // Mã BIN ngân hàng cho VietQR
 }
 
 const defaultSettings: SiteSettings = {
@@ -29,6 +30,7 @@ const defaultSettings: SiteSettings = {
   bank_account: '1234567890',
   bank_holder: 'NGUYEN VAN A',
   bank_branch: 'Chi nhánh Hà Nội',
+  bank_bin: '970436', // Mã BIN Vietcombank mặc định
 };
 
 export function useSiteSettings() {
