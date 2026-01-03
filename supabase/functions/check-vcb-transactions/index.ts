@@ -8,7 +8,8 @@ const corsHeaders = {
 };
 
 // Get VCB API token from environment variable
-const VCB_API_TOKEN = Deno.env.get("2098283c11e964b068d99998ac8f5ab6") || "";
+// Secret name: VCB_API_TOKEN, value should be: 2098283c11e964b068d99998ac8f5ab6
+const VCB_API_TOKEN = Deno.env.get("VCB_API_TOKEN") || "";
 const VCB_API_URL = `https://api.sieuthicode.net/historyapivcb/${VCB_API_TOKEN}`;
 
 interface Transaction {
