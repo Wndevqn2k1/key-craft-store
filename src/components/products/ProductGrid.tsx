@@ -97,11 +97,11 @@ export function ProductGrid() {
             <p className="text-muted-foreground text-lg">Chưa có sản phẩm nào</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {filteredProducts?.map((product, index) => (
               <div
                 key={product.id}
-                className="animate-fade-in"
+                className="animate-fade-in w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)]"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <ProductCard product={product} />
