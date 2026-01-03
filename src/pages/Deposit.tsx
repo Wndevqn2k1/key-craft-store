@@ -144,7 +144,7 @@ const Deposit = () => {
     return new Intl.NumberFormat("vi-VN").format(value);
   };
 
-  const transferContent = `NAP${user?.id?.slice(0, 8).toUpperCase() || "KEYSTORE"}`;
+  const transferContent = `KS${user?.id?.slice(0, 6).toUpperCase() || "STORE"}`;
 
   const createDepositMutation = useMutation({
     mutationFn: async () => {
