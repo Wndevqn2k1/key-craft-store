@@ -132,7 +132,7 @@ const ProductDetail = () => {
     setIsAddingToCart(false);
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!product || !selectedTier) return;
     
     if (!user) {
@@ -145,27 +145,10 @@ const ProductDetail = () => {
       return;
     }
 
-    navigate('/checkout', {
-      state: {
-        directItem: {
-          product_id: product.id,
-          price_tier_id: selectedTier.id,
-          quantity: 1,
-          product: {
-            id: product.id,
-            name: product.name,
-            image: product.image,
-            category: product.category,
-          },
-          price_tier: {
-            id: selectedTier.id,
-            duration_label: selectedTier.duration_label,
-            price: selectedTier.price,
-            original_price: selectedTier.original_price,
-          },
-        }
-      }
-    });
+    setIsAddingToCart(true);
+    await addToCart(product.id, selectedTier.id);
+    setIsAddingToCart(false);
+    navigate('/checkout');
   };
 
   const formatPrice = (price: number) => {
