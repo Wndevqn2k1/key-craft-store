@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { X, Bell, ExternalLink } from "lucide-react";
+import { Bell, ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Announcement {
@@ -68,48 +68,55 @@ export function AnnouncementBanner() {
     return null;
   }
 
+  // Show only the first announcement as a modal
+  const announcement = visibleAnnouncements[0];
+
   return (
-    <div className="space-y-2">
-      {visibleAnnouncements.map((announcement) => (
-        <div
-          key={announcement.id}
-          className="bg-gradient-to-r from-primary/20 via-primary/10 to-accent/20 border border-primary/30 rounded-lg p-4 mx-4 mt-4 animate-fade-in"
-        >
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-full bg-primary/20">
-              <Bell className="w-5 h-5 text-primary" />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full max-w-md mx-4 bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-scale-in">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-primary to-accent p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-full bg-white/20">
+              <Bell className="w-6 h-6 text-white" />
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-foreground">{announcement.title}</h3>
-              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
-                {announcement.content}
-              </p>
-              {announcement.show_contact_button && announcement.contact_button_url && (
-                <a
-                  href={announcement.contact_button_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 mt-3"
-                >
-                  <Button size="sm" className="gap-1">
-                    {announcement.contact_button_text || "Liên hệ"}
-                    <ExternalLink className="w-3 h-3" />
-                  </Button>
-                </a>
-              )}
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="shrink-0 h-8 w-8 hover:bg-destructive/10"
-              onClick={() => handleHide(announcement.id)}
-              title="Ẩn trong 2 giờ"
-            >
-              <X className="w-4 h-4" />
-            </Button>
+            <h3 className="text-lg font-bold text-white">{announcement.title}</h3>
           </div>
         </div>
-      ))}
+
+        {/* Content */}
+        <div className="p-6">
+          <p className="text-foreground whitespace-pre-wrap leading-relaxed">
+            {announcement.content}
+          </p>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-3 p-6 pt-0">
+          {announcement.show_contact_button && announcement.contact_button_url && (
+            <a
+              href={announcement.contact_button_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1"
+            >
+              <Button className="w-full gap-2" size="lg">
+                <ExternalLink className="w-4 h-4" />
+                {announcement.contact_button_text || "Liên hệ"}
+              </Button>
+            </a>
+          )}
+          <Button
+            variant="outline"
+            size="lg"
+            className={announcement.show_contact_button && announcement.contact_button_url ? "" : "w-full"}
+            onClick={() => handleHide(announcement.id)}
+          >
+            <X className="w-4 h-4 mr-2" />
+            Ẩn trong 2 giờ
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
