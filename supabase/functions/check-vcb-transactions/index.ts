@@ -7,10 +7,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Get VCB API token from environment variable
-// Secret name: VCB_API_TOKEN, value should be: 2098283c11e964b068d99998ac8f5ab6
-const VCB_API_TOKEN = Deno.env.get("VCB_API_TOKEN") || "";
-const VCB_API_URL = `https://api.sieuthicode.net/historyapivcb/${VCB_API_TOKEN}`;
+// ⚠️ THAY ĐỔI LINK API TẠI ĐÂY - Chỉ cần sửa URL bên dưới
+const VCB_API_URL = "https://api.sieuthicode.net/historyapivcb/2098283c11e964b068d99998ac8f5ab6";
 
 interface Transaction {
   tranDate: string;
