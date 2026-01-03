@@ -66,10 +66,7 @@ export function Header() {
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8">
-            <Link to="/" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-              Trang chủ
-            </Link>
+          <nav className="hidden lg:flex items-center gap-6">
             <Link to="/products" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
               Sản phẩm
             </Link>
@@ -184,13 +181,6 @@ export function Header() {
         {isMenuOpen && (
           <nav className="lg:hidden pb-4 border-t border-border/50 pt-4 animate-fade-in">
             <div className="flex flex-col gap-4">
-              <Link
-                to="/"
-                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Trang chủ
-              </Link>
               <Link
                 to="/products"
                 className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
