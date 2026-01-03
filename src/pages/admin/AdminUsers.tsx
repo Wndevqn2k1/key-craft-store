@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Shield, ShieldOff, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
+import { Shield, ShieldOff, Pencil, Trash2, MoreHorizontal, Wallet } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -42,8 +42,10 @@ const AdminUsers = () => {
   const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [topUpDialogOpen, setTopUpDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [editForm, setEditForm] = useState({ full_name: '', phone: '' });
+  const [topUpAmount, setTopUpAmount] = useState('');
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['admin-users'],
@@ -118,6 +120,38 @@ const AdminUsers = () => {
     },
   });
 
+  const topUpMutation = useMutation({
+    mutationFn: async ({ userId, amount }: { userId: string; amount: number }) => {
+      // Get current balance
+      const { data: profile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('balance')
+        .eq('id', userId)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      const currentBalance = Number(profile?.balance) || 0;
+      const newBalance = currentBalance + amount;
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ balance: newBalance })
+        .eq('id', userId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast({ title: 'Thành công', description: 'Đã nạp tiền cho người dùng' });
+      setTopUpDialogOpen(false);
+      setTopUpAmount('');
+    },
+    onError: (error) => {
+      toast({ title: 'Lỗi', description: error.message, variant: 'destructive' });
+    },
+  });
+
   const isUserAdmin = (user: any) => {
     return user.user_roles?.some((role: any) => role.role === 'admin');
   };
@@ -126,6 +160,12 @@ const AdminUsers = () => {
     setSelectedUser(user);
     setEditForm({ full_name: user.full_name || '', phone: user.phone || '' });
     setEditDialogOpen(true);
+  };
+
+  const handleTopUp = (user: any) => {
+    setSelectedUser(user);
+    setTopUpAmount('');
+    setTopUpDialogOpen(true);
   };
 
   const handleDelete = (user: any) => {
@@ -147,6 +187,7 @@ const AdminUsers = () => {
                 <TableHead>Người dùng</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Số điện thoại</TableHead>
+                <TableHead>Số dư</TableHead>
                 <TableHead>Vai trò</TableHead>
                 <TableHead>Ngày đăng ký</TableHead>
                 <TableHead className="text-right">Thao tác</TableHead>
@@ -155,11 +196,11 @@ const AdminUsers = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">Đang tải...</TableCell>
+                  <TableCell colSpan={7} className="text-center py-8">Đang tải...</TableCell>
                 </TableRow>
               ) : users?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">Chưa có người dùng nào</TableCell>
+                  <TableCell colSpan={7} className="text-center py-8">Chưa có người dùng nào</TableCell>
                 </TableRow>
               ) : (
                 users?.map((user) => {
@@ -177,6 +218,9 @@ const AdminUsers = () => {
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>{user.phone || 'N/A'}</TableCell>
+                      <TableCell className="font-medium text-primary">
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(user.balance) || 0)}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={isAdmin ? 'default' : 'secondary'}>
                           {isAdmin ? 'Admin' : 'User'}
@@ -194,6 +238,10 @@ const AdminUsers = () => {
                             <DropdownMenuItem onClick={() => handleEdit(user)}>
                               <Pencil className="h-4 w-4 mr-2" />
                               Chỉnh sửa
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleTopUp(user)}>
+                              <Wallet className="h-4 w-4 mr-2" />
+                              Nạp tiền
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => toggleAdminMutation.mutate({ userId: user.id, isAdmin })}
@@ -266,6 +314,43 @@ const AdminUsers = () => {
               disabled={updateUserMutation.isPending}
             >
               {updateUserMutation.isPending ? 'Đang lưu...' : 'Lưu thay đổi'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Top Up Dialog */}
+      <Dialog open={topUpDialogOpen} onOpenChange={setTopUpDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nạp tiền cho người dùng</DialogTitle>
+            <DialogDescription>
+              Nạp tiền cho {selectedUser?.email}
+              <br />
+              Số dư hiện tại: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(selectedUser?.balance) || 0)}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="amount">Số tiền nạp (VND)</Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="Nhập số tiền"
+                value={topUpAmount}
+                onChange={(e) => setTopUpAmount(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTopUpDialogOpen(false)}>
+              Huỷ
+            </Button>
+            <Button
+              onClick={() => topUpMutation.mutate({ userId: selectedUser?.id, amount: Number(topUpAmount) })}
+              disabled={topUpMutation.isPending || !topUpAmount || Number(topUpAmount) <= 0}
+            >
+              {topUpMutation.isPending ? 'Đang nạp...' : 'Nạp tiền'}
             </Button>
           </DialogFooter>
         </DialogContent>
