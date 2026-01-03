@@ -212,9 +212,9 @@ export function Header() {
               </Button>
             </Link>
 
-            {/* User */}
+            {/* User - Desktop Only */}
             {user ? (
-              <div className="flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-2">
                 {isAdmin && (
                   <Link to="/admin">
                     <Button variant="ghost" size="sm">Admin</Button>
@@ -230,7 +230,7 @@ export function Header() {
                 </Button>
               </div>
             ) : (
-              <Link to="/auth">
+              <Link to="/auth" className="hidden md:block">
                 <Button variant="ghost" size="icon">
                   <User className="w-5 h-5" />
                 </Button>
@@ -295,28 +295,77 @@ export function Header() {
 
         {isMenuOpen && (
           <nav className="lg:hidden pb-4 border-t border-border/50 pt-4 animate-fade-in">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
               <Link
                 to="/products"
-                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-secondary/50 rounded-lg transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
+                <ShoppingCart className="w-4 h-4" />
                 Sản phẩm
               </Link>
               <Link
                 to="/about"
-                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-secondary/50 rounded-lg transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
+                <Menu className="w-4 h-4" />
                 Giới thiệu
               </Link>
               <Link
                 to="/deposit"
-                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-secondary/50 rounded-lg transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
+                <Wallet className="w-4 h-4" />
                 Nạp tiền
               </Link>
+
+              {/* Divider */}
+              <div className="h-px bg-border/50 my-2" />
+
+              {/* User functions in mobile menu */}
+              {user ? (
+                <>
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-secondary/50 rounded-lg transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <User className="w-4 h-4" />
+                    Tài khoản
+                  </Link>
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-secondary/50 rounded-lg transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Menu className="w-4 h-4" />
+                      Quản trị
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full text-left"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Đăng xuất
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/auth"
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-secondary/50 rounded-lg transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <User className="w-4 h-4" />
+                  Đăng nhập
+                </Link>
+              )}
             </div>
           </nav>
         )}
