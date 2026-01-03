@@ -17,6 +17,17 @@ export function ProductCard({ product }: ProductCardProps) {
     : 0;
   const popularTier = product.price_tiers?.find((t) => t.is_popular) || product.price_tiers?.[0];
 
+  const badgeText = (product.badge ?? "").toLowerCase();
+  const badgeClass = badgeText.includes("premium")
+    ? "bg-accent text-accent-foreground"
+    : badgeText.includes("hot")
+      ? "bg-primary text-primary-foreground"
+      : badgeText.includes("top") || badgeText.includes("sale") || badgeText.includes("best")
+        ? "bg-primary text-primary-foreground"
+        : badgeText.includes("new")
+          ? "bg-accent text-accent-foreground"
+          : "bg-secondary text-secondary-foreground";
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -36,15 +47,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {product.badge && (
         <div className="absolute top-3 left-3 z-10">
           <Badge
-            className={`
-              font-display font-semibold text-xs px-3 py-1
-              ${product.badge === "Hot" ? "bg-destructive text-destructive-foreground" : ""}
-              ${product.badge === "Best Seller" ? "bg-primary text-primary-foreground" : ""}
-              ${product.badge === "Premium" ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-black" : ""}
-              ${product.badge === "New" ? "bg-accent text-accent-foreground" : ""}
-              ${product.badge === "Popular" ? "bg-cyber text-white" : ""}
-              ${product.badge === "Trending" ? "bg-gradient-to-r from-primary to-accent text-black" : ""}
-            `}
+            className={`font-display font-semibold text-xs px-3 py-1 ${badgeClass}`}
           >
             {product.badge}
           </Badge>
@@ -56,6 +59,8 @@ export function ProductCard({ product }: ProductCardProps) {
         <img
           src={product.image || '/placeholder.svg'}
           alt={product.name}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
