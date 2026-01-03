@@ -98,6 +98,11 @@ export function Header() {
                     <Button variant="ghost" size="sm">Admin</Button>
                   </Link>
                 )}
+                <Link to="/profile">
+                  <Button variant="ghost" size="icon">
+                    <User className="w-5 h-5" />
+                  </Button>
+                </Link>
                 <Button variant="ghost" size="icon" onClick={signOut}>
                   <LogOut className="w-5 h-5" />
                 </Button>
