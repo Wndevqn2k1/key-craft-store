@@ -125,6 +125,28 @@ export function Header() {
             </span>
           </Link>
 
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1">
+            <Link
+              to="/products"
+              className="px-3 py-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+            >
+              Sản phẩm
+            </Link>
+            <Link
+              to="/about"
+              className="px-3 py-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+            >
+              Giới thiệu
+            </Link>
+            <Link
+              to="/deposit"
+              className="px-3 py-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+            >
+              Nạp tiền
+            </Link>
+          </nav>
+
           {/* Search Bar - Desktop (expanded) */}
           <div ref={searchRef} className="hidden md:flex items-center flex-1 max-w-2xl mx-6 relative">
             <form onSubmit={handleSearch} className="w-full">
