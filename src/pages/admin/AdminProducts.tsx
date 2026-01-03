@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Pencil, Trash2, Image, X, GripVertical } from 'lucide-react';
+import { Plus, Pencil, Trash2, Image, X, GripVertical, Link, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -47,6 +47,7 @@ const AdminProducts = () => {
   const [priceTiers, setPriceTiers] = useState<PriceTierForm[]>([]);
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [imageUrlInput, setImageUrlInput] = useState('');
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -329,6 +330,19 @@ const AdminProducts = () => {
     }));
     
     setProductImages([...productImages, ...newImages]);
+    e.target.value = ''; // Reset input
+  };
+
+  const handleAddImageUrl = () => {
+    if (!imageUrlInput.trim()) return;
+    
+    const newImage: ProductImage = {
+      image_url: imageUrlInput.trim(),
+      display_order: productImages.length,
+    };
+    
+    setProductImages([...productImages, newImage]);
+    setImageUrlInput('');
   };
 
   const removeImage = (index: number) => {
@@ -517,17 +531,54 @@ const AdminProducts = () => {
                 </TabsContent>
                 
                 <TabsContent value="images" className="space-y-4 mt-4">
-                  <div>
-                    <Label>Ảnh mô tả sản phẩm</Label>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Thêm nhiều ảnh để mô tả chi tiết sản phẩm
-                    </p>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageUpload}
-                    />
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="flex items-center gap-2 mb-2">
+                        <Link className="h-4 w-4" />
+                        Thêm ảnh bằng URL
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Nhập URL ảnh (PNG, GIF, JPG...)"
+                          value={imageUrlInput}
+                          onChange={(e) => setImageUrlInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddImageUrl();
+                            }
+                          }}
+                        />
+                        <Button type="button" variant="outline" onClick={handleAddImageUrl}>
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">hoặc</span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label className="flex items-center gap-2 mb-2">
+                        <Upload className="h-4 w-4" />
+                        Upload file ảnh
+                      </Label>
+                      <Input
+                        type="file"
+                        accept="image/png,image/gif,image/jpeg,image/jpg,image/webp"
+                        multiple
+                        onChange={handleImageUpload}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Hỗ trợ: PNG, GIF, JPG, WEBP
+                      </p>
+                    </div>
                   </div>
                   
                   {productImages.length > 0 && (
