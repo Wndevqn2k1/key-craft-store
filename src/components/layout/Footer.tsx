@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { Facebook, MessageCircle, Mail, Phone, MapPin, Shield, CreditCard, Clock } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export function Footer() {
+  const { data: settings } = useSiteSettings();
+
   return (
     <footer className="bg-card border-t border-border mt-20">
       {/* Trust Badges */}
@@ -54,27 +57,39 @@ export function Footer() {
           {/* About */}
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <span className="text-primary-foreground font-display font-bold text-xl">K</span>
-              </div>
+              {settings?.logo_url ? (
+                <img src={settings.logo_url} alt="Logo" className="w-10 h-10 rounded-lg object-contain" />
+              ) : (
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <span className="text-primary-foreground font-display font-bold text-xl">
+                    {settings?.site_name?.charAt(0) || 'K'}
+                  </span>
+                </div>
+              )}
               <span className="font-display text-xl font-bold tracking-wider">
-                <span className="text-primary">KEY</span>
-                <span className="text-foreground">STORE</span>
+                <span className="text-primary">{settings?.site_name?.split('').slice(0, 3).join('') || 'KEY'}</span>
+                <span className="text-foreground">{settings?.site_name?.split('').slice(3).join('') || 'STORE'}</span>
               </span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
               Cung cấp key bản quyền phần mềm, game chính hãng với giá tốt nhất thị trường.
             </p>
             <div className="flex gap-3">
-              <a href="#" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
-                <MessageCircle className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Mail className="w-5 h-5" />
-              </a>
+              {settings?.facebook_url && (
+                <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+                  <Facebook className="w-5 h-5" />
+                </a>
+              )}
+              {settings?.zalo_url && (
+                <a href={settings.zalo_url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+                  <MessageCircle className="w-5 h-5" />
+                </a>
+              )}
+              {settings?.contact_email && (
+                <a href={`mailto:${settings.contact_email}`} className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+                  <Mail className="w-5 h-5" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -98,8 +113,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Liên hệ
+                <Link to="/deposit" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Nạp tiền
                 </Link>
               </li>
             </ul>
@@ -136,18 +151,24 @@ export function Footer() {
           <div>
             <h3 className="font-display font-semibold mb-4 text-lg">Liên hệ</h3>
             <ul className="space-y-3">
-              <li className="flex items-center gap-3 text-sm text-muted-foreground">
-                <Phone className="w-4 h-4 text-primary" />
-                <span>0123 456 789</span>
-              </li>
-              <li className="flex items-center gap-3 text-sm text-muted-foreground">
-                <Mail className="w-4 h-4 text-primary" />
-                <span>support@keystore.vn</span>
-              </li>
-              <li className="flex items-start gap-3 text-sm text-muted-foreground">
-                <MapPin className="w-4 h-4 text-primary mt-0.5" />
-                <span>123 Đường ABC, Quận 1, TP.HCM</span>
-              </li>
+              {settings?.contact_phone && (
+                <li className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <Phone className="w-4 h-4 text-primary" />
+                  <span>{settings.contact_phone}</span>
+                </li>
+              )}
+              {settings?.contact_email && (
+                <li className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <Mail className="w-4 h-4 text-primary" />
+                  <span>{settings.contact_email}</span>
+                </li>
+              )}
+              {settings?.contact_address && (
+                <li className="flex items-start gap-3 text-sm text-muted-foreground">
+                  <MapPin className="w-4 h-4 text-primary mt-0.5" />
+                  <span>{settings.contact_address}</span>
+                </li>
+              )}
             </ul>
           </div>
         </div>
@@ -156,7 +177,7 @@ export function Footer() {
       {/* Copyright */}
       <div className="border-t border-border py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© 2024 KeyStore. Tất cả quyền được bảo lưu.</p>
+          <p>© {new Date().getFullYear()} {settings?.site_name || 'KeyStore'}. Tất cả quyền được bảo lưu.</p>
         </div>
       </div>
     </footer>

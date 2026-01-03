@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,6 +16,7 @@ export function Header() {
   const { user, isAdmin, signOut } = useAuth();
   const { cartCount } = useCart();
   const navigate = useNavigate();
+  const { data: settings } = useSiteSettings();
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -49,12 +51,18 @@ export function Header() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-primary">
-              <span className="text-primary-foreground font-display font-bold text-xl">K</span>
-            </div>
+            {settings?.logo_url ? (
+              <img src={settings.logo_url} alt="Logo" className="w-10 h-10 rounded-lg object-contain" />
+            ) : (
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-primary">
+                <span className="text-primary-foreground font-display font-bold text-xl">
+                  {settings?.site_name?.charAt(0) || 'K'}
+                </span>
+              </div>
+            )}
             <span className="font-display text-xl md:text-2xl font-bold tracking-wider">
-              <span className="text-primary">KEY</span>
-              <span className="text-foreground">STORE</span>
+              <span className="text-primary">{settings?.site_name?.split('').slice(0, 3).join('') || 'KEY'}</span>
+              <span className="text-foreground">{settings?.site_name?.split('').slice(3).join('') || 'STORE'}</span>
             </span>
           </Link>
 
