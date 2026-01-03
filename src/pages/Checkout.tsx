@@ -155,9 +155,8 @@ const Checkout = () => {
       // Clear cart
       await clearCart();
 
-      // Show success modal with keys
-      setPurchasedKeys(keys);
-      setShowSuccessModal(true);
+      // Navigate to order success page
+      navigate(`/order-success/${order.id}`);
     } catch (error: any) {
       toast({ title: 'Lỗi', description: error.message, variant: 'destructive' });
     } finally {
