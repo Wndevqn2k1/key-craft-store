@@ -484,13 +484,22 @@ const Checkout = () => {
               </div>
 
               {/* Footer */}
-              <div className="p-6 pt-0">
+              <div className="p-6 pt-0 space-y-3">
                 <Button 
                   className="w-full" 
                   size="lg"
-                  onClick={handleCloseSuccessModal}
+                  onClick={() => navigate('/')}
                 >
-                  Đóng
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  Tiếp tục mua sắm
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => navigate('/profile')}
+                >
+                  Xem lịch sử đơn hàng
                 </Button>
               </div>
             </div>
