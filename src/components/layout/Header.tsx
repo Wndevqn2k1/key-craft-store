@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, Menu, Search, User, X, LogOut, Wallet } from "lucide-react";
+import { ShoppingCart, Menu, Search, User, X, LogOut, Wallet, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect, useRef } from "react";
@@ -109,7 +109,7 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
+          <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
             {settings?.logo_url ? (
               <img src={settings.logo_url} alt="Logo" className="w-10 h-10 rounded-lg object-contain" />
             ) : (
@@ -119,26 +119,14 @@ export function Header() {
                 </span>
               </div>
             )}
-            <span className="font-display text-xl md:text-2xl font-bold tracking-wider">
+            <span className="font-display text-xl md:text-2xl font-bold tracking-wider hidden sm:block">
               <span className="text-primary">{settings?.site_name?.split('').slice(0, 3).join('') || 'KEY'}</span>
               <span className="text-foreground">{settings?.site_name?.split('').slice(3).join('') || 'STORE'}</span>
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-6">
-            <Link to="/products" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-              Sản phẩm
-            </Link>
-            <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-              Giới thiệu
-            </Link>
-            <Link to="/deposit" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-              Nạp tiền
-            </Link>
-          </nav>
-
-          {/* Search Bar - Desktop */}
-          <div ref={searchRef} className="hidden md:flex items-center flex-1 max-w-md mx-8 relative">
+          {/* Search Bar - Desktop (expanded) */}
+          <div ref={searchRef} className="hidden md:flex items-center flex-1 max-w-2xl mx-6 relative">
             <form onSubmit={handleSearch} className="w-full">
               <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -179,7 +167,7 @@ export function Header() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
             {/* Mobile Search Toggle */}
             <Button
               variant="ghost"
@@ -212,37 +200,10 @@ export function Header() {
               </Button>
             </Link>
 
-            {/* User - Desktop Only */}
-            {user ? (
-              <div className="hidden md:flex items-center gap-2">
-                {isAdmin && (
-                  <Link to="/admin">
-                    <Button variant="ghost" size="sm">Admin</Button>
-                  </Link>
-                )}
-                <Link to="/profile">
-                  <Button variant="ghost" size="icon">
-                    <User className="w-5 h-5" />
-                  </Button>
-                </Link>
-                <Button variant="ghost" size="icon" onClick={signOut}>
-                  <LogOut className="w-5 h-5" />
-                </Button>
-              </div>
-            ) : (
-              <Link to="/auth" className="hidden md:block">
-                <Button variant="ghost" size="icon">
-                  <User className="w-5 h-5" />
-                </Button>
-              </Link>
-            )}
-
-
-            {/* Mobile Menu Toggle */}
+            {/* Menu Toggle - All screens */}
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -293,8 +254,9 @@ export function Header() {
           </div>
         )}
 
+        {/* Menu Dropdown */}
         {isMenuOpen && (
-          <nav className="lg:hidden pb-4 border-t border-border/50 pt-4 animate-fade-in">
+          <nav className="pb-4 border-t border-border/50 pt-4 animate-fade-in">
             <div className="flex flex-col gap-2">
               <Link
                 to="/products"
@@ -309,7 +271,7 @@ export function Header() {
                 className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-secondary/50 rounded-lg transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <Menu className="w-4 h-4" />
+                <Info className="w-4 h-4" />
                 Giới thiệu
               </Link>
               <Link
@@ -324,7 +286,7 @@ export function Header() {
               {/* Divider */}
               <div className="h-px bg-border/50 my-2" />
 
-              {/* User functions in mobile menu */}
+              {/* User functions */}
               {user ? (
                 <>
                   <Link
