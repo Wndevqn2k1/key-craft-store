@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          contact_button_text: string | null
+          contact_button_url: string | null
+          content: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          show_contact_button: boolean | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          contact_button_text?: string | null
+          contact_button_url?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          show_contact_button?: boolean | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          contact_button_text?: string | null
+          contact_button_url?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          show_contact_button?: boolean | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           created_at: string | null
