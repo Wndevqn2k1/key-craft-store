@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +8,6 @@ import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -26,56 +25,17 @@ import {
   QrCode,
   Smartphone
 } from 'lucide-react';
-import { CartItemWithDetails } from '@/types/database';
-
-interface CheckoutItem {
-  product_id: string;
-  price_tier_id: string;
-  quantity: number;
-  product: {
-    id: string;
-    name: string;
-    image: string | null;
-    category: string;
-  };
-  price_tier: {
-    id: string;
-    duration_label: string;
-    price: number;
-    original_price: number | null;
-  };
-}
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
   const { cartItems, isLoading: cartLoading, cartTotal, removeFromCart, updateQuantity, clearCart } = useCart();
   
   const [userBalance, setUserBalance] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [referralCode, setReferralCode] = useState('');
-  const [discountCode, setDiscountCode] = useState('');
-  
-  // Check if coming from "Buy Now" with direct item
-  const directItem = location.state?.directItem as CheckoutItem | undefined;
-  const isDirectCheckout = !!directItem;
-  
-  // Items to display - either direct item or cart items
-  const checkoutItems: CheckoutItem[] = isDirectCheckout 
-    ? [directItem] 
-    : cartItems.map(item => ({
-        product_id: item.product_id,
-        price_tier_id: item.price_tier_id,
-        quantity: item.quantity,
-        product: item.product,
-        price_tier: item.price_tier,
-      }));
 
-  const totalAmount = isDirectCheckout 
-    ? directItem.price_tier.price * directItem.quantity 
-    : cartTotal;
+  const totalAmount = cartTotal;
 
   useEffect(() => {
     const fetchUserBalance = async () => {
@@ -101,13 +61,6 @@ const Checkout = () => {
   };
 
   const amountNeeded = Math.max(0, totalAmount - userBalance);
-  const discountPercent = checkoutItems.reduce((acc, item) => {
-    if (item.price_tier.original_price && item.price_tier.original_price > item.price_tier.price) {
-      const discount = Math.round((1 - item.price_tier.price / item.price_tier.original_price) * 100);
-      return Math.max(acc, discount);
-    }
-    return acc;
-  }, 0);
 
   const handleBalancePayment = async () => {
     if (!user) {
@@ -137,7 +90,7 @@ const Checkout = () => {
       if (orderError) throw orderError;
 
       // Create order items and assign keys
-      for (const item of checkoutItems) {
+      for (const item of cartItems) {
         // Get available key
         const { data: keyData, error: keyError } = await supabase
           .from('product_keys')
@@ -178,10 +131,8 @@ const Checkout = () => {
         .update({ balance: userBalance - totalAmount })
         .eq('id', user.id);
 
-      // Clear cart if not direct checkout
-      if (!isDirectCheckout) {
-        await clearCart();
-      }
+      // Clear cart
+      await clearCart();
 
       toast({ title: 'Thành công', description: 'Đơn hàng đã được thanh toán!' });
       navigate('/');
@@ -211,7 +162,7 @@ const Checkout = () => {
     );
   }
 
-  if (cartLoading && !isDirectCheckout) {
+  if (cartLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -231,13 +182,13 @@ const Checkout = () => {
     );
   }
 
-  if (checkoutItems.length === 0) {
+  if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <main className="container mx-auto px-4 py-16 text-center">
           <ShoppingBag className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-foreground mb-4">Không có sản phẩm</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">Giỏ hàng trống</h1>
           <p className="text-muted-foreground mb-6">
             Vui lòng thêm sản phẩm để thanh toán
           </p>
@@ -263,14 +214,14 @@ const Checkout = () => {
             Quay lại
           </Button>
           <h1 className="text-2xl font-bold text-foreground">
-            Giỏ hàng <span className="text-muted-foreground font-normal">({checkoutItems.reduce((acc, item) => acc + item.quantity, 0)} sản phẩm)</span>
+            Giỏ hàng <span className="text-muted-foreground font-normal">({cartItems.reduce((acc, item) => acc + item.quantity, 0)} sản phẩm)</span>
           </h1>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {checkoutItems.map((item, index) => (
+            {cartItems.map((item, index) => (
               <Card key={`${item.product_id}-${item.price_tier_id}-${index}`} className="overflow-hidden">
                 <CardContent className="p-4">
                   <div className="flex gap-4">
@@ -313,55 +264,37 @@ const Checkout = () => {
                       
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center gap-2">
-                          {!isDirectCheckout && (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => {
-                                  const cartItem = cartItems.find(ci => ci.product_id === item.product_id && ci.price_tier_id === item.price_tier_id);
-                                  if (cartItem) updateQuantity(cartItem.id, item.quantity - 1);
-                                }}
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="w-8 text-center font-medium text-sm">{item.quantity}</span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => {
-                                  const cartItem = cartItems.find(ci => ci.product_id === item.product_id && ci.price_tier_id === item.price_tier_id);
-                                  if (cartItem) updateQuantity(cartItem.id, item.quantity + 1);
-                                }}
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
-                            </>
-                          )}
-                          {isDirectCheckout && (
-                            <span className="text-sm text-muted-foreground">Số lượng: {item.quantity}</span>
-                          )}
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <span className="w-8 text-center font-medium text-sm">{item.quantity}</span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="flex items-center gap-1 text-sm text-green-600">
                             <ShoppingBag className="h-4 w-4" />
                             <span>Còn hàng</span>
                           </div>
-                          {!isDirectCheckout && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                              onClick={() => {
-                                const cartItem = cartItems.find(ci => ci.product_id === item.product_id && ci.price_tier_id === item.price_tier_id);
-                                if (cartItem) removeFromCart(cartItem.id);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => removeFromCart(item.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </div>
