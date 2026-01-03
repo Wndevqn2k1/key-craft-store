@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useDepositRealtime } from "@/hooks/useDepositRealtime";
 import { 
   Wallet, 
   CreditCard, 
@@ -34,6 +35,9 @@ const Deposit = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: siteSettings } = useSiteSettings();
+  
+  // Enable realtime notifications for deposit updates
+  useDepositRealtime();
   const [amount, setAmount] = useState<number>(100000);
   const [customAmount, setCustomAmount] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
