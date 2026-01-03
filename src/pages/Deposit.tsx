@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { 
   Wallet, 
   CreditCard, 
@@ -25,18 +26,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PRESET_AMOUNTS = [50000, 100000, 200000, 500000, 1000000];
 
-const BANK_INFO = {
-  bankName: "Vietcombank",
-  accountNumber: "1234567890",
-  accountName: "KEYSTORE VIETNAM",
-  branch: "Chi nhánh Hà Nội",
-};
-
 const Deposit = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { data: siteSettings } = useSiteSettings();
   const [amount, setAmount] = useState<number>(100000);
   const [customAmount, setCustomAmount] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
@@ -241,10 +236,10 @@ const Deposit = () => {
                       <CardContent className="space-y-4">
                         <div className="grid gap-4">
                           {[
-                            { label: "Ngân hàng", value: BANK_INFO.bankName },
-                            { label: "Số tài khoản", value: BANK_INFO.accountNumber },
-                            { label: "Tên tài khoản", value: BANK_INFO.accountName },
-                            { label: "Chi nhánh", value: BANK_INFO.branch },
+                            { label: "Ngân hàng", value: siteSettings?.bank_name || 'Vietcombank' },
+                            { label: "Số tài khoản", value: siteSettings?.bank_account || '1234567890' },
+                            { label: "Tên tài khoản", value: siteSettings?.bank_holder || 'KEYSTORE VIETNAM' },
+                            { label: "Chi nhánh", value: siteSettings?.bank_branch || 'Chi nhánh Hà Nội' },
                             { label: "Số tiền", value: `${formatAmount(amount)} VNĐ` },
                             { label: "Nội dung CK", value: transferContent },
                           ].map((item) => (

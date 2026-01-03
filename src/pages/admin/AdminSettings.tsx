@@ -37,6 +37,7 @@ const AdminSettings = () => {
     bank_name: '',
     bank_account: '',
     bank_holder: '',
+    bank_branch: '',
   });
   
   const [isUploading, setIsUploading] = useState(false);
@@ -322,14 +323,25 @@ const AdminSettings = () => {
                   </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="bank_holder">Chủ tài khoản</Label>
-                  <Input
-                    id="bank_holder"
-                    value={formData.bank_holder}
-                    onChange={(e) => handleInputChange('bank_holder', e.target.value)}
-                    placeholder="NGUYEN VAN A"
-                  />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="bank_holder">Chủ tài khoản</Label>
+                    <Input
+                      id="bank_holder"
+                      value={formData.bank_holder}
+                      onChange={(e) => handleInputChange('bank_holder', e.target.value)}
+                      placeholder="NGUYEN VAN A"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bank_branch">Chi nhánh</Label>
+                    <Input
+                      id="bank_branch"
+                      value={formData.bank_branch}
+                      onChange={(e) => handleInputChange('bank_branch', e.target.value)}
+                      placeholder="Chi nhánh Hà Nội"
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
