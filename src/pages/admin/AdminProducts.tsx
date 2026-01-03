@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Pencil, Trash2, Image, X, GripVertical, Link, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, Image, X, GripVertical, Link, Upload, ZoomIn } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -48,6 +48,11 @@ const AdminProducts = () => {
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [imageUrlInput, setImageUrlInput] = useState('');
+  const [mainImageUrlInput, setMainImageUrlInput] = useState('');
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const mainImageInputRef = useRef<HTMLInputElement>(null);
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -95,12 +100,20 @@ const AdminProducts = () => {
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
+      let mainImageUrl = data.image;
+      
+      // Upload main image if file is provided
+      if (mainImageFile) {
+        const tempId = crypto.randomUUID();
+        mainImageUrl = await uploadImage(mainImageFile, tempId);
+      }
+      
       // Create product
       const { data: newProduct, error } = await supabase.from('products').insert({
         name: data.name,
         description: data.description,
         category: data.category,
-        image: data.image,
+        image: mainImageUrl,
         badge: data.badge || null,
         features: data.features ? data.features.split(',').map(f => f.trim()) : [],
       }).select().single();
@@ -163,6 +176,13 @@ const AdminProducts = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
+      let mainImageUrl = data.image;
+      
+      // Upload main image if file is provided
+      if (mainImageFile) {
+        mainImageUrl = await uploadImage(mainImageFile, id);
+      }
+      
       // Update product
       const { error } = await supabase
         .from('products')
@@ -170,7 +190,7 @@ const AdminProducts = () => {
           name: data.name,
           description: data.description,
           category: data.category,
-          image: data.image,
+          image: mainImageUrl,
           badge: data.badge || null,
           features: data.features ? data.features.split(',').map(f => f.trim()) : [],
         })
@@ -257,6 +277,9 @@ const AdminProducts = () => {
     setPriceTiers([]);
     setProductImages([]);
     setActiveTab('info');
+    setMainImageFile(null);
+    setMainImageUrlInput('');
+    setImageUrlInput('');
   };
 
   const handleEdit = (product: any) => {
@@ -349,6 +372,47 @@ const AdminProducts = () => {
     setProductImages(productImages.filter((_, i) => i !== index));
   };
 
+  // Drag and drop handlers
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    
+    const newImages = [...productImages];
+    const draggedItem = newImages[draggedIndex];
+    newImages.splice(draggedIndex, 1);
+    newImages.splice(index, 0, draggedItem);
+    
+    // Update display order
+    const reordered = newImages.map((img, i) => ({ ...img, display_order: i }));
+    setProductImages(reordered);
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
+  // Main image handlers
+  const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setMainImageFile(file);
+    setFormData({ ...formData, image: URL.createObjectURL(file) });
+    e.target.value = '';
+  };
+
+  const handleMainImageUrl = () => {
+    if (!mainImageUrlInput.trim()) return;
+    setFormData({ ...formData, image: mainImageUrlInput.trim() });
+    setMainImageFile(null);
+    setMainImageUrlInput('');
+  };
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -420,12 +484,73 @@ const AdminProducts = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="image">URL hình ảnh chính</Label>
-                    <Input
-                      id="image"
-                      value={formData.image}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    />
+                    <Label>Hình ảnh chính</Label>
+                    <div className="space-y-3 mt-2">
+                      {/* Preview current image */}
+                      {formData.image && (
+                        <div className="relative w-32 h-32 group">
+                          <img 
+                            src={formData.image} 
+                            alt="Main" 
+                            className="w-full h-full object-cover rounded-lg border cursor-pointer"
+                            onClick={() => setPreviewImage(formData.image)}
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => {
+                              setFormData({ ...formData, image: '' });
+                              setMainImageFile(null);
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                          <div className="absolute bottom-1 left-1 right-1 bg-background/80 px-2 py-0.5 rounded text-xs text-center truncate">
+                            Ảnh chính
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* URL input */}
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Nhập URL ảnh chính..."
+                          value={mainImageUrlInput}
+                          onChange={(e) => setMainImageUrlInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleMainImageUrl();
+                            }
+                          }}
+                        />
+                        <Button type="button" variant="outline" onClick={handleMainImageUrl}>
+                          <Link className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* File upload */}
+                      <div className="flex gap-2">
+                        <Input
+                          ref={mainImageInputRef}
+                          type="file"
+                          accept="image/png,image/gif,image/jpeg,image/jpg,image/webp"
+                          onChange={handleMainImageUpload}
+                          className="hidden"
+                        />
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => mainImageInputRef.current?.click()}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload ảnh chính
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <Label htmlFor="badge">Badge (Hot, New, Sale...)</Label>
@@ -582,28 +707,53 @@ const AdminProducts = () => {
                   </div>
                   
                   {productImages.length > 0 && (
-                    <div className="grid grid-cols-3 gap-3">
-                      {productImages.map((img, index) => (
-                        <div key={index} className="relative group">
-                          <img 
-                            src={img.image_url} 
-                            alt={`Product ${index + 1}`}
-                            className="w-full aspect-video object-cover rounded-lg border"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => removeImage(index)}
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">
+                        Kéo thả để sắp xếp thứ tự. Click vào ảnh để xem lớn hơn.
+                      </p>
+                      <div className="grid grid-cols-3 gap-3">
+                        {productImages.map((img, index) => (
+                          <div 
+                            key={index} 
+                            className={`relative group cursor-move ${draggedIndex === index ? 'opacity-50' : ''}`}
+                            draggable
+                            onDragStart={() => handleDragStart(index)}
+                            onDragOver={(e) => handleDragOver(e, index)}
+                            onDragEnd={handleDragEnd}
                           >
-                            <X className="h-3 w-3" />
-                          </Button>
-                          <div className="absolute bottom-1 left-1 bg-background/80 px-2 py-0.5 rounded text-xs">
-                            #{index + 1}
+                            <div className="absolute top-1 left-1 z-10 bg-background/80 p-1 rounded cursor-grab">
+                              <GripVertical className="h-3 w-3" />
+                            </div>
+                            <img 
+                              src={img.image_url} 
+                              alt={`Product ${index + 1}`}
+                              className="w-full aspect-video object-cover rounded-lg border hover:ring-2 hover:ring-primary transition-all"
+                              onClick={() => setPreviewImage(img.image_url)}
+                            />
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              size="icon"
+                              className="absolute top-1 right-8 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => setPreviewImage(img.image_url)}
+                            >
+                              <ZoomIn className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => removeImage(index)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                            <div className="absolute bottom-1 left-1 bg-background/80 px-2 py-0.5 rounded text-xs">
+                              #{index + 1}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   )}
                 </TabsContent>
@@ -700,6 +850,16 @@ const AdminProducts = () => {
           </Table>
         </CardContent>
       </Card>
+      {/* Image Preview Dialog */}
+      <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
+        <DialogContent className="max-w-4xl p-2">
+          <img 
+            src={previewImage || ''} 
+            alt="Preview" 
+            className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+          />
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };
