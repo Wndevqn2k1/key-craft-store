@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { 
@@ -19,7 +19,9 @@ import {
   CheckCircle2,
   ArrowRight,
   QrCode,
-  Loader2
+  Loader2,
+  RefreshCw,
+  Clock
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -36,6 +38,97 @@ const Deposit = () => {
   const [customAmount, setCustomAmount] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [checkCount, setCheckCount] = useState(0);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Query to check pending deposit status
+  const { data: pendingDeposit, refetch: refetchDeposit } = useQuery({
+    queryKey: ['pending-deposit', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from('deposits')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id && hasSubmitted,
+    refetchInterval: hasSubmitted ? 10000 : false, // Poll every 10s when submitted
+  });
+
+  // Function to manually check VCB transactions
+  const checkVCBTransactions = async () => {
+    setIsChecking(true);
+    try {
+      const response = await supabase.functions.invoke('check-vcb-transactions');
+      console.log('VCB check response:', response.data);
+      
+      if (response.data?.matchedDeposits > 0) {
+        toast({
+          title: "Nạp tiền thành công!",
+          description: `Đã xác nhận ${response.data.matchedDeposits} giao dịch.`,
+        });
+        queryClient.invalidateQueries({ queryKey: ['balance'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-deposit'] });
+        setHasSubmitted(false);
+        
+        // Stop polling
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+      }
+      
+      setCheckCount(prev => prev + 1);
+    } catch (error) {
+      console.error('Error checking VCB transactions:', error);
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  // Start polling when deposit is submitted
+  useEffect(() => {
+    if (hasSubmitted && !pollingIntervalRef.current) {
+      // Initial check after 30 seconds
+      const initialCheck = setTimeout(() => {
+        checkVCBTransactions();
+      }, 30000);
+
+      // Then check every 60 seconds
+      pollingIntervalRef.current = setInterval(() => {
+        checkVCBTransactions();
+      }, 60000);
+
+      return () => {
+        clearTimeout(initialCheck);
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+      };
+    }
+  }, [hasSubmitted]);
+
+  // Check if pending deposit was approved
+  useEffect(() => {
+    if (pendingDeposit === null && hasSubmitted && checkCount > 0) {
+      // Deposit was approved
+      toast({
+        title: "Nạp tiền thành công!",
+        description: "Số dư đã được cộng vào tài khoản của bạn.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['balance'] });
+      setHasSubmitted(false);
+    }
+  }, [pendingDeposit, hasSubmitted, checkCount]);
 
   const handleCopy = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -274,19 +367,50 @@ const Deposit = () => {
                         </div>
 
                         {hasSubmitted ? (
-                          <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
-                            <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                            <p className="font-medium text-green-400">Yêu cầu đã được gửi!</p>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Vui lòng chuyển khoản và chờ admin xác nhận.
+                          <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+                            <div className="flex items-center justify-center gap-2 mb-3">
+                              <div className="relative">
+                                <Clock className="w-6 h-6 text-primary animate-pulse" />
+                              </div>
+                              <p className="font-medium text-primary">Đang chờ xác nhận giao dịch...</p>
+                            </div>
+                            
+                            <p className="text-sm text-muted-foreground text-center mb-4">
+                              Hệ thống sẽ tự động kiểm tra và cộng tiền khi phát hiện giao dịch của bạn.
+                              {checkCount > 0 && (
+                                <span className="block mt-1 text-xs">
+                                  Đã kiểm tra {checkCount} lần
+                                </span>
+                              )}
                             </p>
-                            <Button 
-                              variant="outline" 
-                              className="mt-3"
-                              onClick={() => navigate('/profile')}
-                            >
-                              Xem lịch sử nạp tiền
-                            </Button>
+
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <Button 
+                                variant="outline" 
+                                className="flex-1"
+                                onClick={checkVCBTransactions}
+                                disabled={isChecking}
+                              >
+                                {isChecking ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Đang kiểm tra...
+                                  </>
+                                ) : (
+                                  <>
+                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                    Kiểm tra ngay
+                                  </>
+                                )}
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                className="flex-1"
+                                onClick={() => navigate('/profile')}
+                              >
+                                Xem lịch sử nạp tiền
+                              </Button>
+                            </div>
                           </div>
                         ) : (
                           <Button 
