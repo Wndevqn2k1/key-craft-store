@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, Menu, Search, User, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +9,19 @@ import { useCart } from "@/contexts/CartContext";
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { user, isAdmin, signOut } = useAuth();
   const { cartCount } = useCart();
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+      setIsSearchOpen(false);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/50">
@@ -44,15 +55,17 @@ export function Header() {
           </nav>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
+          <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-8">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Tìm kiếm sản phẩm..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 bg-secondary/50 border-border/50 focus:border-primary"
               />
             </div>
-          </div>
+          </form>
 
           {/* Actions */}
           <div className="flex items-center gap-2 md:gap-4">
@@ -112,15 +125,17 @@ export function Header() {
 
         {/* Mobile Search */}
         {isSearchOpen && (
-          <div className="md:hidden pb-4 animate-fade-in">
+          <form onSubmit={handleSearch} className="md:hidden pb-4 animate-fade-in">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Tìm kiếm sản phẩm..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 bg-secondary/50 border-border/50"
               />
             </div>
-          </div>
+          </form>
         )}
 
         {/* Mobile Menu */}
