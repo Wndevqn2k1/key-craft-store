@@ -38,6 +38,7 @@ const AdminSettings = () => {
     bank_account: '',
     bank_holder: '',
     bank_branch: '',
+    bank_bin: '970436',
   });
   
   const [isUploading, setIsUploading] = useState(false);
@@ -342,6 +343,19 @@ const AdminSettings = () => {
                       placeholder="Chi nhánh Hà Nội"
                     />
                   </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="bank_bin">Mã BIN ngân hàng (cho VietQR)</Label>
+                  <Input
+                    id="bank_bin"
+                    value={formData.bank_bin}
+                    onChange={(e) => handleInputChange('bank_bin', e.target.value)}
+                    placeholder="970436"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Tra cứu mã BIN tại: <a href="https://www.vietqr.io/danh-sach-ngan-hang" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">vietqr.io/danh-sach-ngan-hang</a>
+                  </p>
                 </div>
               </CardContent>
             </Card>

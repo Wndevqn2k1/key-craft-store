@@ -303,13 +303,18 @@ const Deposit = () => {
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto">
                 <Tabs defaultValue="bank" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 mb-6">
+                  <TabsList className="grid w-full grid-cols-4 mb-6">
                     <TabsTrigger value="bank" className="gap-2">
                       <Building2 className="w-4 h-4" />
-                      Chuyển khoản
+                      <span className="hidden sm:inline">Chuyển khoản</span>
+                      <span className="sm:hidden">CK</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="vietqr" className="gap-2">
+                      <QrCode className="w-4 h-4" />
+                      VietQR
                     </TabsTrigger>
                     <TabsTrigger value="vnpay" className="gap-2">
-                      <QrCode className="w-4 h-4" />
+                      <CreditCard className="w-4 h-4" />
                       VNPay
                     </TabsTrigger>
                     <TabsTrigger value="momo" className="gap-2">
@@ -440,31 +445,162 @@ const Deposit = () => {
                     </Card>
                   </TabsContent>
 
+                  {/* VietQR */}
+                  <TabsContent value="vietqr">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="font-display flex items-center gap-2">
+                          <QrCode className="w-5 h-5 text-primary" />
+                          Quét mã VietQR
+                        </CardTitle>
+                        <CardDescription>
+                          Quét mã QR bằng app ngân hàng để chuyển khoản nhanh. Thông tin đã được điền sẵn.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="flex flex-col items-center">
+                          {/* VietQR Image */}
+                          <div className="bg-white p-4 rounded-xl shadow-lg mb-4">
+                            <img 
+                              src={`https://img.vietqr.io/image/${siteSettings?.bank_bin || '970436'}-${siteSettings?.bank_account || '1234567890'}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(siteSettings?.bank_holder || 'KEYSTORE VIETNAM')}`}
+                              alt="VietQR Code"
+                              className="w-64 h-64 object-contain"
+                              onError={(e) => {
+                                // Fallback nếu lỗi
+                                (e.target as HTMLImageElement).src = `https://img.vietqr.io/image/VCB-${siteSettings?.bank_account || '1234567890'}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(transferContent)}`;
+                              }}
+                            />
+                          </div>
+                          
+                          <div className="text-center mb-4">
+                            <p className="text-muted-foreground text-sm mb-2">
+                              Số tiền: <strong className="text-primary text-lg">{formatAmount(amount)}đ</strong>
+                            </p>
+                            <p className="text-muted-foreground text-sm">
+                              Nội dung: <strong className="text-accent">{transferContent}</strong>
+                            </p>
+                          </div>
+
+                          <div className="w-full max-w-sm space-y-2">
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 border border-border">
+                              <div>
+                                <p className="text-sm text-muted-foreground">Ngân hàng</p>
+                                <p className="font-medium">{siteSettings?.bank_name || 'Vietcombank'}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 border border-border">
+                              <div>
+                                <p className="text-sm text-muted-foreground">Số tài khoản</p>
+                                <p className="font-medium">{siteSettings?.bank_account || '1234567890'}</p>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleCopy(siteSettings?.bank_account || '1234567890', 'Số tài khoản')}
+                              >
+                                {copied === 'Số tài khoản' ? (
+                                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                ) : (
+                                  <Copy className="w-4 h-4" />
+                                )}
+                              </Button>
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 border border-border">
+                              <div>
+                                <p className="text-sm text-muted-foreground">Chủ tài khoản</p>
+                                <p className="font-medium">{siteSettings?.bank_holder || 'KEYSTORE VIETNAM'}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="p-4 rounded-lg bg-accent/10 border border-accent/20 mt-4 w-full">
+                            <p className="text-sm text-muted-foreground text-center">
+                              <strong className="text-accent">Hướng dẫn:</strong> Mở app ngân hàng → Quét mã QR → Xác nhận chuyển khoản
+                            </p>
+                          </div>
+
+                          {hasSubmitted ? (
+                            <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 mt-4 w-full">
+                              <div className="flex items-center justify-center gap-2 mb-3">
+                                <Clock className="w-6 h-6 text-primary animate-pulse" />
+                                <p className="font-medium text-primary">Đang chờ xác nhận...</p>
+                              </div>
+                              <Button 
+                                variant="outline" 
+                                className="w-full"
+                                onClick={checkVCBTransactions}
+                                disabled={isChecking}
+                              >
+                                {isChecking ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Đang kiểm tra...
+                                  </>
+                                ) : (
+                                  <>
+                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                    Kiểm tra ngay
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button 
+                              className="w-full glow-primary mt-4" 
+                              size="lg"
+                              onClick={() => createDepositMutation.mutate()}
+                              disabled={createDepositMutation.isPending || amount < 10000}
+                            >
+                              {createDepositMutation.isPending ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Đang xử lý...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                                  Xác nhận đã chuyển khoản ({formatAmount(amount)}đ)
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
                   {/* VNPay */}
                   <TabsContent value="vnpay">
                     <Card>
                       <CardHeader>
                         <CardTitle className="font-display flex items-center gap-2">
-                          <QrCode className="w-5 h-5 text-primary" />
+                          <CreditCard className="w-5 h-5 text-[#0066b3]" />
                           Thanh toán VNPay
                         </CardTitle>
                         <CardDescription>
-                          Thanh toán nhanh qua QR code hoặc ứng dụng ngân hàng
+                          Thanh toán qua cổng VNPay - Hỗ trợ thẻ ATM nội địa, Visa, Mastercard
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="text-center py-8">
-                        <div className="w-48 h-48 bg-secondary/50 rounded-xl mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-border">
-                          <QrCode className="w-16 h-16 text-muted-foreground" />
+                        <div className="w-48 h-48 bg-[#0066b3]/10 rounded-xl mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-[#0066b3]/30">
+                          <img 
+                            src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-VNPAY-QR-1.png" 
+                            alt="VNPay Logo"
+                            className="w-32 h-32 object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
                         </div>
                         <p className="text-muted-foreground mb-4">
                           Số tiền: <strong className="text-primary">{formatAmount(amount)}đ</strong>
                         </p>
-                        <Button className="glow-primary gap-2">
+                        <Button className="bg-[#0066b3] hover:bg-[#004d8a] gap-2" disabled>
                           Thanh toán với VNPay
                           <ArrowRight className="w-4 h-4" />
                         </Button>
                         <p className="text-sm text-muted-foreground mt-4">
-                          Tính năng đang được phát triển. Vui lòng sử dụng chuyển khoản ngân hàng.
+                          Tính năng đang được phát triển. Vui lòng sử dụng VietQR hoặc chuyển khoản.
                         </p>
                       </CardContent>
                     </Card>
