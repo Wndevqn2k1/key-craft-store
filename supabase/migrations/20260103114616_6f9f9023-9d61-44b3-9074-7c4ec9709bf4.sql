@@ -36,4 +36,4 @@ USING (has_role(auth.uid(), 'admin'));
 INSERT INTO public.categories (name, slug, icon, display_order) VALUES
   ('Windows', 'windows', 'Monitor', 1),
   ('Office', 'office', 'FileText', 2),
-  ('Phần mềm', 'software', 'Sparkles', 3);
+  ('Phần mềm', 'toolhack', 'Sparkles', 3);
