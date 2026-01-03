@@ -1,18 +1,38 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, Menu, Search, User, X, LogOut } from "lucide-react";
+import { ShoppingCart, Menu, Search, User, X, LogOut, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [balance, setBalance] = useState(0);
   const { user, isAdmin, signOut } = useAuth();
   const { cartCount } = useCart();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (!user) {
+        setBalance(0);
+        return;
+      }
+      const { data } = await supabase
+        .from('profiles')
+        .select('balance')
+        .eq('id', user.id)
+        .single();
+      if (data) {
+        setBalance(data.balance || 0);
+      }
+    };
+    fetchBalance();
+  }, [user]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,6 +98,16 @@ export function Header() {
               <Search className="w-5 h-5" />
             </Button>
 
+            {/* Balance Display */}
+            {user && (
+              <Link to="/deposit" className="flex flex-col items-center gap-0.5 px-2 py-1 hover:bg-secondary/50 rounded-lg transition-colors">
+                <Wallet className="w-5 h-5 text-primary" />
+                <span className="text-xs font-medium text-primary">
+                  {balance.toLocaleString('vi-VN')}đ
+                </span>
+              </Link>
+            )}
+
             {/* Cart */}
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
@@ -89,6 +119,31 @@ export function Header() {
                 )}
               </Button>
             </Link>
+
+            {/* User */}
+            {user ? (
+              <div className="flex items-center gap-2">
+                {isAdmin && (
+                  <Link to="/admin">
+                    <Button variant="ghost" size="sm">Admin</Button>
+                  </Link>
+                )}
+                <Link to="/profile">
+                  <Button variant="ghost" size="icon">
+                    <User className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="icon" onClick={signOut}>
+                  <LogOut className="w-5 h-5" />
+                </Button>
+              </div>
+            ) : (
+              <Link to="/auth">
+                <Button variant="ghost" size="icon">
+                  <User className="w-5 h-5" />
+                </Button>
+              </Link>
+            )}
 
             {/* User */}
             {user ? (
