@@ -7,13 +7,32 @@ import { useProducts } from "@/hooks/useProducts";
 export function ProductGrid() {
   const { data: products, isLoading } = useProducts();
 
-  // Sort products by reviews_count (as a proxy for popularity/sales)
-  const sortedProducts = products?.slice().sort((a, b) => b.reviews_count - a.reviews_count);
+  // Keep the original ordering from the backend (currently: newest first)
+  // Prefer products that have a badge (HOT/TOP SALE/PREMIUM...) like trong ảnh.
+  const featuredProducts = (() => {
+    const list = products ?? [];
+    const preferred = list.filter((p) => !!p.badge && /hot|top|sale|premium|best|new/i.test(p.badge));
+
+    const picked = new Set<string>();
+    const result = [] as typeof list;
+
+    for (const p of preferred) {
+      if (result.length >= 3) break;
+      result.push(p);
+      picked.add(p.id);
+    }
+
+    for (const p of list) {
+      if (result.length >= 3) break;
+      if (!picked.has(p.id)) result.push(p);
+    }
+
+    return result;
+  })();
 
   return (
-    <section id="featured-products" className="py-16">
+    <section id="featured-products" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
             <span className="text-foreground">SẢN PHẨM</span>{" "}
@@ -24,32 +43,31 @@ export function ProductGrid() {
           </p>
         </div>
 
-
-        {/* Products Grid */}
         {isLoading ? (
           <div className="flex justify-center items-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : sortedProducts?.length === 0 ? (
+        ) : featuredProducts.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-muted-foreground text-lg">Chưa có sản phẩm nào</p>
           </div>
         ) : (
-          <div className="flex flex-wrap justify-center gap-6">
-            {sortedProducts?.map((product, index) => (
-              <div
-                key={product.id}
-                className="animate-fade-in w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)]"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <ProductCard product={product} />
-              </div>
-            ))}
+          <div className="mx-auto max-w-6xl">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 justify-items-center">
+              {featuredProducts.map((product, index) => (
+                <div
+                  key={product.id}
+                  className="animate-fade-in w-full max-w-sm"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* View All */}
-        {sortedProducts && sortedProducts.length > 0 && (
+        {products && products.length > 0 && (
           <div className="text-center mt-12">
             <Link to="/products">
               <Button variant="outline" size="lg" className="font-display hover:border-primary hover:text-primary">

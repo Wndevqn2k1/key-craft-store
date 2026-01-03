@@ -77,10 +77,10 @@ export function AnnouncementBanner() {
         {/* Header */}
         <div className="bg-gradient-to-r from-primary to-accent p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-full bg-white/20">
-              <Bell className="w-6 h-6 text-white" />
+            <div className="p-2 rounded-full bg-primary-foreground/20">
+              <Bell className="w-6 h-6 text-primary-foreground" />
             </div>
-            <h3 className="text-lg font-bold text-white">{announcement.title}</h3>
+            <h3 className="text-lg font-bold text-primary-foreground">{announcement.title}</h3>
           </div>
         </div>
 
