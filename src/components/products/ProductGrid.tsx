@@ -1,17 +1,10 @@
 import { useState } from "react";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/components/ui/button";
-import { Grid3X3, Monitor, FileText, Palette, Play, Sparkles, Loader2 } from "lucide-react";
+import { Grid3X3, Monitor, FileText, Palette, Play, Sparkles, Loader2, Shield, Package } from "lucide-react";
 import { useProducts } from "@/hooks/useProducts";
-
-const categories = [
-  { id: "all", name: "Tất cả", icon: "Grid3X3" },
-  { id: "windows", name: "Windows", icon: "Monitor" },
-  { id: "office", name: "Office", icon: "FileText" },
-  { id: "design", name: "Design", icon: "Palette" },
-  { id: "antivirus", name: "Antivirus", icon: "Play" },
-  { id: "other", name: "Khác", icon: "Sparkles" },
-];
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const iconMap: Record<string, React.ReactNode> = {
   Grid3X3: <Grid3X3 className="w-4 h-4" />,
@@ -20,11 +13,25 @@ const iconMap: Record<string, React.ReactNode> = {
   Palette: <Palette className="w-4 h-4" />,
   Play: <Play className="w-4 h-4" />,
   Sparkles: <Sparkles className="w-4 h-4" />,
+  Shield: <Shield className="w-4 h-4" />,
+  Package: <Package className="w-4 h-4" />,
 };
 
 export function ProductGrid() {
   const [activeCategory, setActiveCategory] = useState("all");
   const { data: products, isLoading } = useProducts();
+
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const filteredProducts =
     activeCategory === "all"
@@ -49,19 +56,32 @@ export function ProductGrid() {
 
         {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {categories.map((category) => (
+          <Button
+            variant={activeCategory === "all" ? "default" : "outline"}
+            size="sm"
+            className={`gap-2 ${
+              activeCategory === "all"
+                ? "glow-primary"
+                : "hover:border-primary/50"
+            }`}
+            onClick={() => setActiveCategory("all")}
+          >
+            <Grid3X3 className="w-4 h-4" />
+            Tất cả
+          </Button>
+          {categories?.map((category) => (
             <Button
               key={category.id}
-              variant={activeCategory === category.id ? "default" : "outline"}
+              variant={activeCategory === category.slug ? "default" : "outline"}
               size="sm"
               className={`gap-2 ${
-                activeCategory === category.id
+                activeCategory === category.slug
                   ? "glow-primary"
                   : "hover:border-primary/50"
               }`}
-              onClick={() => setActiveCategory(category.id)}
+              onClick={() => setActiveCategory(category.slug)}
             >
-              {iconMap[category.icon]}
+              {iconMap[category.icon || 'Sparkles']}
               {category.name}
             </Button>
           ))}
