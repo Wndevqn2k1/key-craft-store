@@ -7,8 +7,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// API endpoint for VCB transaction history
-const VCB_API_URL = 'https://api.sieuthicode.net/historyapivcb/2098283c11e964b068d99998ac8f5ab6';
+// Get VCB API token from environment variable
+const VCB_API_TOKEN = Deno.env.get('VCB_API_TOKEN') || '';
+const VCB_API_URL = `https://api.sieuthicode.net/historyapivcb/${VCB_API_TOKEN}`;
 
 interface Transaction {
   tranDate: string;
