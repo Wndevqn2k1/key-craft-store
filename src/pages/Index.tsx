@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { HeroSection } from "@/components/home/HeroSection";
+import { HeroSlider } from "@/components/home/HeroSlider";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 
@@ -20,7 +20,7 @@ const Index = () => {
         <Header />
         <AnnouncementBanner />
         <main className="flex-1">
-          <HeroSection />
+          <HeroSlider />
           <ProductGrid />
         </main>
         <Footer />

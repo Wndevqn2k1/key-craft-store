@@ -12,7 +12,8 @@ import {
   FolderOpen,
   Wallet,
   Settings,
-  Bell
+  Bell,
+  Image
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,7 @@ const menuItems = [
   { icon: ShoppingCart, label: 'Đơn hàng', path: '/admin/orders' },
   { icon: Wallet, label: 'Nạp tiền', path: '/admin/deposits' },
   { icon: Users, label: 'Người dùng', path: '/admin/users' },
+  { icon: Image, label: 'Banners', path: '/admin/banners' },
   { icon: Bell, label: 'Thông báo', path: '/admin/announcements' },
   { icon: Settings, label: 'Cài đặt', path: '/admin/settings' },
 ];

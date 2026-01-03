@@ -24,6 +24,7 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminDeposits from "./pages/admin/AdminDeposits";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
+import AdminBanners from "./pages/admin/AdminBanners";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/admin/settings" element={<AdminSettings />} />
                 <Route path="/admin/announcements" element={<AdminAnnouncements />} />
+                <Route path="/admin/banners" element={<AdminBanners />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
