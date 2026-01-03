@@ -64,18 +64,33 @@ export function HeroSlider() {
     <section className="w-full py-4 bg-background">
       {/* Centered Banner Container - 1170x390px */}
       <div className="container mx-auto px-4">
-        <div className="relative mx-auto overflow-hidden rounded-lg" style={{ maxWidth: '1170px', aspectRatio: '1170/390' }}>
-        {/* Banner Images */}
-        {banners.map((banner, index) => (
-          <div
-            key={banner.id}
-            className={`absolute inset-0 transition-opacity duration-500 ${
-              index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
-          >
-            {banner.button_url ? (
-              <Link to={banner.button_url} className="block w-full h-full">
-                {banner.image_url ? (
+        <div className="relative mx-auto" style={{ maxWidth: '1170px' }}>
+          {/* Banner Images */}
+          <div className="relative overflow-hidden rounded-lg" style={{ aspectRatio: '1170/390' }}>
+            {banners.map((banner, index) => (
+              <div
+                key={banner.id}
+                className={`absolute inset-0 transition-opacity duration-500 ${
+                  index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
+                }`}
+              >
+                {banner.button_url ? (
+                  <Link to={banner.button_url} className="block w-full h-full">
+                    {banner.image_url ? (
+                      <img
+                        src={banner.image_url}
+                        alt={banner.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-r from-primary/20 to-accent/20 flex items-center justify-center">
+                        <span className="text-2xl md:text-4xl font-bold text-foreground">
+                          {banner.title}
+                        </span>
+                      </div>
+                    )}
+                  </Link>
+                ) : banner.image_url ? (
                   <img
                     src={banner.image_url}
                     alt={banner.title}
@@ -88,79 +103,65 @@ export function HeroSlider() {
                     </span>
                   </div>
                 )}
-              </Link>
-            ) : banner.image_url ? (
-              <img
-                src={banner.image_url}
-                alt={banner.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-r from-primary/20 to-accent/20 flex items-center justify-center">
-                <span className="text-2xl md:text-4xl font-bold text-foreground">
-                  {banner.title}
-                </span>
+              </div>
+            ))}
+
+            {/* Dots Indicator - Inside banner at bottom */}
+            {slidesCount > 1 && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                {banners.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      index === currentSlide
+                        ? "bg-primary w-6"
+                        : "bg-background/60 hover:bg-background/80"
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
               </div>
             )}
           </div>
-        ))}
 
-        {/* Navigation Arrows */}
-        {slidesCount > 1 && (
-          <>
-            <button
-              onClick={prevSlide}
-              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-10 p-1.5 md:p-2 rounded-full bg-background/70 hover:bg-background transition-colors"
-              aria-label="Previous slide"
-            >
-              <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
-            </button>
-            <button
-              onClick={nextSlide}
-              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-10 p-1.5 md:p-2 rounded-full bg-background/70 hover:bg-background transition-colors"
-              aria-label="Next slide"
-            >
-              <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
-            </button>
-          </>
-        )}
+          {/* Navigation Arrows - Outside the banner on sides */}
+          {slidesCount > 1 && (
+            <>
+              <button
+                onClick={prevSlide}
+                className="absolute left-[-44px] top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background border border-border hover:bg-muted transition-colors hidden md:flex items-center justify-center"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-[-44px] top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background border border-border hover:bg-muted transition-colors hidden md:flex items-center justify-center"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              {/* Mobile arrows - inside banner edges */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-background/60 hover:bg-background/80 transition-colors md:hidden"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-background/60 hover:bg-background/80 transition-colors md:hidden"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </>
+          )}
         </div>
       </div>
-
-      {/* Navigation Controls Below */}
-      {slidesCount > 1 && (
-        <div className="flex items-center justify-center gap-6 mt-3">
-          <button
-            onClick={prevSlide}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded px-3 py-1"
-          >
-            « Previous
-          </button>
-
-          {/* Slide Indicators */}
-          <div className="flex items-center gap-2">
-            {banners.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                  index === currentSlide
-                    ? "bg-primary"
-                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={nextSlide}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded px-3 py-1"
-          >
-            Next »
-          </button>
-        </div>
-      )}
     </section>
   );
 }
