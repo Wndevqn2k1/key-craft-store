@@ -126,7 +126,7 @@ export function Header() {
                 </span>
               </div>
             )}
-            <span className="font-display text-xl md:text-2xl font-bold tracking-wider hidden sm:block">
+            <span className="font-display text-lg md:text-2xl font-bold tracking-wider">
               <span className="text-primary">{settings?.site_name?.split('').slice(0, 3).join('') || 'KEY'}</span>
               <span className="text-foreground">{settings?.site_name?.split('').slice(3).join('') || 'STORE'}</span>
             </span>
