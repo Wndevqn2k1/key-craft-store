@@ -36,9 +36,9 @@ export function HeroSection() {
             className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in"
             style={{ animationDelay: "0.1s" }}
           >
-            <span className="text-foreground">KEY TOOL/MOD</span>
+            <span className="text-foreground">KEY BẢN QUYỀN</span>
             <br />
-            <span className="text-gradient">UY TÍN HÀNG ĐẦU</span>
+            <span className="text-gradient">CHÍNH HÃNG</span>
           </h1>
 
           {/* Description */}
@@ -46,8 +46,8 @@ export function HeroSection() {
             className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in"
             style={{ animationDelay: "0.2s" }}
           >
-            Cung cấp key phần mềm, game, tài khoản, tool mod với giá tốt nhất. Kích hoạt nhanh chóng, bảo hành uy tín,
-            hỗ trợ tận tình.
+            Cung cấp key phần mềm, game, tài khoản premium với giá tốt nhất. Kích hoạt nhanh chóng, bảo hành uy tín, hỗ
+            trợ tận tình.
           </p>
 
           {/* CTA Buttons */}
