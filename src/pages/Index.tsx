@@ -3,6 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
 import { ProductGrid } from "@/components/products/ProductGrid";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 
 const Index = () => {
   return (
@@ -17,6 +18,7 @@ const Index = () => {
 
       <div className="min-h-screen flex flex-col">
         <Header />
+        <AnnouncementBanner />
         <main className="flex-1">
           <HeroSection />
           <ProductGrid />
