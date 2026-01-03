@@ -1,4 +1,4 @@
-import { ArrowRight, Zap, Shield, Clock } from "lucide-react";
+import { ArrowRight, Zap, Shield, Clock, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -51,9 +51,10 @@ export function HeroSection() {
               Khám phá ngay
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Link to="/contact">
+            <Link to="/deposit">
               <Button size="lg" variant="outline" className="font-display text-lg px-8 hover:border-primary hover:text-primary">
-                Liên hệ tư vấn
+                <Wallet className="w-5 h-5 mr-2" />
+                Nạp tiền
               </Button>
             </Link>
           </div>

@@ -38,7 +38,6 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             <Link to="/" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
               Trang chủ
@@ -49,8 +48,8 @@ export function Header() {
             <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
               Giới thiệu
             </Link>
-            <Link to="/contact" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-              Liên hệ
+            <Link to="/deposit" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+              Nạp tiền
             </Link>
           </nav>
 
@@ -138,7 +137,6 @@ export function Header() {
           </form>
         )}
 
-        {/* Mobile Menu */}
         {isMenuOpen && (
           <nav className="lg:hidden pb-4 border-t border-border/50 pt-4 animate-fade-in">
             <div className="flex flex-col gap-4">
@@ -164,11 +162,11 @@ export function Header() {
                 Giới thiệu
               </Link>
               <Link
-                to="/contact"
+                to="/deposit"
                 className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Liên hệ
+                Nạp tiền
               </Link>
             </div>
           </nav>
