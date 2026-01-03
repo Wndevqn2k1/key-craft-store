@@ -61,9 +61,10 @@ export function HeroSlider() {
   const currentBanner = banners[currentSlide];
 
   return (
-    <section className="relative w-full">
-      {/* Banner Container */}
-      <div className="relative w-full aspect-[21/6] md:aspect-[21/5] lg:aspect-[21/4] overflow-hidden bg-muted">
+    <section className="w-full py-4 bg-background">
+      {/* Centered Banner Container - 1170x390px */}
+      <div className="container mx-auto px-4">
+        <div className="relative mx-auto overflow-hidden rounded-lg" style={{ maxWidth: '1170px', aspectRatio: '1170/390' }}>
         {/* Banner Images */}
         {banners.map((banner, index) => (
           <div
@@ -123,14 +124,15 @@ export function HeroSlider() {
             </button>
           </>
         )}
+        </div>
       </div>
 
       {/* Navigation Controls Below */}
       {slidesCount > 1 && (
-        <div className="flex items-center justify-between px-4 py-2 bg-background border-b border-border">
+        <div className="flex items-center justify-center gap-6 mt-3">
           <button
             onClick={prevSlide}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded px-3 py-1"
           >
             « Previous
           </button>
@@ -141,9 +143,9 @@ export function HeroSlider() {
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   index === currentSlide
-                    ? "bg-primary w-6"
+                    ? "bg-primary"
                     : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
@@ -153,7 +155,7 @@ export function HeroSlider() {
 
           <button
             onClick={nextSlide}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded px-3 py-1"
           >
             Next »
           </button>
