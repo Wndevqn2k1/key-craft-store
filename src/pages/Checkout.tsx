@@ -23,8 +23,17 @@ import {
   Wallet,
   CreditCard,
   QrCode,
-  Smartphone
+  Smartphone,
+  CheckCircle,
+  Copy,
+  Check
 } from 'lucide-react';
+
+interface PurchasedKey {
+  productName: string;
+  duration: string;
+  keyValue: string;
+}
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -34,6 +43,9 @@ const Checkout = () => {
   
   const [userBalance, setUserBalance] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [purchasedKeys, setPurchasedKeys] = useState<PurchasedKey[]>([]);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const totalAmount = cartTotal;
 
@@ -89,12 +101,14 @@ const Checkout = () => {
 
       if (orderError) throw orderError;
 
+      const keys: PurchasedKey[] = [];
+
       // Create order items and assign keys
       for (const item of cartItems) {
         // Get available key
         const { data: keyData, error: keyError } = await supabase
           .from('product_keys')
-          .select('id')
+          .select('id, key_value')
           .eq('product_id', item.product_id)
           .eq('price_tier_id', item.price_tier_id)
           .eq('status', 'available')
@@ -103,7 +117,8 @@ const Checkout = () => {
         if (keyError) throw keyError;
 
         for (let i = 0; i < item.quantity; i++) {
-          const keyId = keyData?.[i]?.id;
+          const key = keyData?.[i];
+          const keyId = key?.id;
           
           // Create order item
           await supabase.from('order_items').insert({
@@ -115,12 +130,18 @@ const Checkout = () => {
             key_id: keyId,
           });
 
-          // Update key status
-          if (keyId) {
+          // Update key status and collect key info
+          if (keyId && key?.key_value) {
             await supabase
               .from('product_keys')
               .update({ status: 'sold', buyer_id: user.id, sold_at: new Date().toISOString() })
               .eq('id', keyId);
+
+            keys.push({
+              productName: item.product.name,
+              duration: item.price_tier.duration_label,
+              keyValue: key.key_value,
+            });
           }
         }
       }
@@ -134,13 +155,30 @@ const Checkout = () => {
       // Clear cart
       await clearCart();
 
-      toast({ title: 'Thành công', description: 'Đơn hàng đã được thanh toán!' });
-      navigate('/');
+      // Show success modal with keys
+      setPurchasedKeys(keys);
+      setShowSuccessModal(true);
     } catch (error: any) {
       toast({ title: 'Lỗi', description: error.message, variant: 'destructive' });
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleCopyKey = async (keyValue: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(keyValue);
+      setCopiedIndex(index);
+      toast({ title: 'Đã sao chép', description: 'Key đã được sao chép vào clipboard' });
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (error) {
+      toast({ title: 'Lỗi', description: 'Không thể sao chép key', variant: 'destructive' });
+    }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    navigate('/');
   };
 
   if (!user) {
@@ -386,6 +424,78 @@ const Checkout = () => {
             </Card>
           </div>
         </div>
+
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in">
+            <div className="relative w-full max-w-md mx-4 bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-scale-in">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 text-center">
+                <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-white/20 flex items-center justify-center">
+                  <CheckCircle className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Thanh toán thành công!</h3>
+                <p className="text-white/80 text-sm mt-1">Cảm ơn bạn đã mua hàng</p>
+              </div>
+
+              {/* Keys List */}
+              <div className="p-6 max-h-80 overflow-y-auto">
+                <h4 className="font-semibold text-foreground mb-4">Thông tin Key của bạn:</h4>
+                <div className="space-y-3">
+                  {purchasedKeys.map((key, index) => (
+                    <div 
+                      key={index}
+                      className="p-4 bg-muted rounded-lg border border-border"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-medium text-foreground text-sm">{key.productName}</p>
+                          <p className="text-xs text-muted-foreground">{key.duration}</p>
+                        </div>
+                      </div>
+                      <div 
+                        className="flex items-center gap-2 p-3 bg-background rounded-md border border-border cursor-pointer hover:border-primary transition-colors group"
+                        onClick={() => handleCopyKey(key.keyValue, index)}
+                      >
+                        <code className="flex-1 text-sm font-mono text-foreground break-all">
+                          {key.keyValue}
+                        </code>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="shrink-0 h-8 w-8"
+                        >
+                          {copiedIndex === index ? (
+                            <Check className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <Copy className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {purchasedKeys.length === 0 && (
+                    <p className="text-center text-muted-foreground text-sm">
+                      Không có key nào được gán. Vui lòng liên hệ hỗ trợ.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-6 pt-0">
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={handleCloseSuccessModal}
+                >
+                  Đóng
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
     </div>
