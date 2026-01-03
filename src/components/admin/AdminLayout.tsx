@@ -8,7 +8,8 @@ import {
   ShoppingCart, 
   Users, 
   LogOut,
-  ChevronLeft
+  ChevronLeft,
+  FolderOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -16,6 +17,7 @@ import { cn } from '@/lib/utils';
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
   { icon: Package, label: 'Sản phẩm', path: '/admin/products' },
+  { icon: FolderOpen, label: 'Danh mục', path: '/admin/categories' },
   { icon: Key, label: 'Keys', path: '/admin/keys' },
   { icon: ShoppingCart, label: 'Đơn hàng', path: '/admin/orders' },
   { icon: Users, label: 'Người dùng', path: '/admin/users' },
