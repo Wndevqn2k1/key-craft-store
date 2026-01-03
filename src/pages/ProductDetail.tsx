@@ -14,12 +14,19 @@ import {
   ShoppingCart, 
   Check, 
   ChevronLeft, 
+  ChevronRight,
   Package,
   Shield,
   Zap,
   Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+interface ProductImage {
+  id: string;
+  image_url: string;
+  display_order: number;
+}
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +36,8 @@ const ProductDetail = () => {
   const [keyStock, setKeyStock] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [productImages, setProductImages] = useState<ProductImage[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -57,6 +66,17 @@ const ProductDetail = () => {
           .order('price', { ascending: true });
 
         if (tiersError) throw tiersError;
+
+        // Fetch product images
+        const { data: imagesData, error: imagesError } = await supabase
+          .from('product_images')
+          .select('*')
+          .eq('product_id', id)
+          .order('display_order', { ascending: true });
+
+        if (!imagesError && imagesData) {
+          setProductImages(imagesData);
+        }
 
         const productWithTiers: ProductWithTiers = {
           ...productData,
@@ -113,6 +133,19 @@ const ProductDetail = () => {
     }).format(price);
   };
 
+  const allImages = [
+    ...(product?.image ? [{ id: 'main', image_url: product.image, display_order: -1 }] : []),
+    ...productImages
+  ];
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -165,19 +198,68 @@ const ProductDetail = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Image */}
-          <div className="relative">
-            <div className="aspect-video rounded-xl overflow-hidden bg-card border border-border">
-              <img
-                src={product.image || '/placeholder.svg'}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
+          {/* Product Images */}
+          <div className="space-y-4">
+            {/* Main Image */}
+            <div className="relative">
+              <div className="aspect-video rounded-xl overflow-hidden bg-card border border-border">
+                <img
+                  src={allImages[currentImageIndex]?.image_url || '/placeholder.svg'}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              {product.badge && (
+                <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
+                  {product.badge}
+                </Badge>
+              )}
+              
+              {/* Navigation Arrows */}
+              {allImages.length > 1 && (
+                <>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full opacity-80 hover:opacity-100"
+                    onClick={prevImage}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full opacity-80 hover:opacity-100"
+                    onClick={nextImage}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
             </div>
-            {product.badge && (
-              <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
-                {product.badge}
-              </Badge>
+
+            {/* Thumbnail Gallery */}
+            {allImages.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {allImages.map((img, index) => (
+                  <button
+                    key={img.id}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={cn(
+                      'flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all',
+                      index === currentImageIndex 
+                        ? 'border-primary' 
+                        : 'border-border hover:border-primary/50'
+                    )}
+                  >
+                    <img
+                      src={img.image_url}
+                      alt={`${product.name} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 
@@ -193,14 +275,14 @@ const ProductDetail = () => {
                       key={i}
                       className={cn(
                         'h-4 w-4',
-                        i < Math.floor(product.rating)
+                        i < Math.floor(product.rating || 5)
                           ? 'text-yellow-500 fill-yellow-500'
                           : 'text-muted-foreground'
                       )}
                     />
                   ))}
                   <span className="text-sm text-muted-foreground ml-1">
-                    ({product.reviews_count} đánh giá)
+                    ({product.reviews_count || 0} đánh giá)
                   </span>
                 </div>
               </div>
@@ -226,72 +308,76 @@ const ProductDetail = () => {
             {/* Price Tiers */}
             <div className="space-y-3">
               <h3 className="font-semibold text-foreground">Chọn gói:</h3>
-              <div className="grid gap-3">
-                {product.price_tiers.map((tier) => {
-                  const stock = keyStock[tier.id] || 0;
-                  const isSelected = selectedTier?.id === tier.id;
-                  
-                  return (
-                    <Card
-                      key={tier.id}
-                      className={cn(
-                        'cursor-pointer transition-all',
-                        isSelected
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border hover:border-primary/50'
-                      )}
-                      onClick={() => setSelectedTier(tier as PriceTier)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={cn(
-                                'w-4 h-4 rounded-full border-2 flex items-center justify-center',
-                                isSelected ? 'border-primary' : 'border-muted-foreground'
-                              )}
-                            >
-                              {isSelected && (
-                                <div className="w-2 h-2 rounded-full bg-primary" />
-                              )}
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">
-                                  {tier.duration_label}
-                                </span>
-                                {tier.is_popular && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    Phổ biến
-                                  </Badge>
+              {product.price_tiers.length === 0 ? (
+                <p className="text-muted-foreground text-sm">Chưa có gói nào được cấu hình</p>
+              ) : (
+                <div className="grid gap-3">
+                  {product.price_tiers.map((tier) => {
+                    const stock = keyStock[tier.id] || 0;
+                    const isSelected = selectedTier?.id === tier.id;
+                    
+                    return (
+                      <Card
+                        key={tier.id}
+                        className={cn(
+                          'cursor-pointer transition-all',
+                          isSelected
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-primary/50'
+                        )}
+                        onClick={() => setSelectedTier(tier as PriceTier)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={cn(
+                                  'w-4 h-4 rounded-full border-2 flex items-center justify-center',
+                                  isSelected ? 'border-primary' : 'border-muted-foreground'
+                                )}
+                              >
+                                {isSelected && (
+                                  <div className="w-2 h-2 rounded-full bg-primary" />
                                 )}
                               </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <span className="text-primary font-bold">
-                                  {formatPrice(tier.price)}
-                                </span>
-                                {tier.original_price && tier.original_price > tier.price && (
-                                  <span className="text-muted-foreground line-through">
-                                    {formatPrice(tier.original_price)}
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-foreground">
+                                    {tier.duration_label}
                                   </span>
-                                )}
+                                  {tier.is_popular && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      Phổ biến
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 text-sm">
+                                  <span className="text-primary font-bold">
+                                    {formatPrice(tier.price)}
+                                  </span>
+                                  {tier.original_price && tier.original_price > tier.price && (
+                                    <span className="text-muted-foreground line-through">
+                                      {formatPrice(tier.original_price)}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className={cn(
+                                'text-sm font-medium',
+                                stock > 0 ? 'text-green-500' : 'text-red-500'
+                              )}>
+                                {stock > 0 ? `Còn ${stock} key` : 'Hết hàng'}
                               </div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className={cn(
-                              'text-sm font-medium',
-                              stock > 0 ? 'text-green-500' : 'text-red-500'
-                            )}>
-                              {stock > 0 ? `Còn ${stock} key` : 'Hết hàng'}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Add to Cart Button */}
