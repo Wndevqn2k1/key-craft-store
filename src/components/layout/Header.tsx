@@ -1,5 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, Menu, Search, User, X, LogOut, Wallet, Info } from "lucide-react";
+import { ShoppingCart, Menu, Search, User, X, LogOut, Wallet, Info, Settings } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect, useRef } from "react";
@@ -225,23 +232,37 @@ export function Header() {
             {/* Desktop User Actions - Hidden on mobile */}
             <div className="hidden md:flex items-center gap-2">
               {user ? (
-                <>
-                  <Link to="/profile">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
-                      <User className="w-5 h-5" />
+                      <Menu className="w-5 h-5" />
                     </Button>
-                  </Link>
-                  {isAdmin && (
-                    <Link to="/admin">
-                      <Button variant="outline" size="sm" className="text-xs">
-                        Quản trị
-                      </Button>
-                    </Link>
-                  )}
-                  <Button variant="ghost" size="icon" onClick={() => signOut()}>
-                    <LogOut className="w-5 h-5" />
-                  </Button>
-                </>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+                        <User className="w-4 h-4" />
+                        Tài khoản
+                      </Link>
+                    </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
+                          <Settings className="w-4 h-4" />
+                          Quản trị
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => signOut()}
+                      className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Đăng xuất
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Link to="/auth">
                   <Button variant="default" size="sm">
