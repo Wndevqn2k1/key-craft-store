@@ -83,6 +83,48 @@ export type Database = {
         }
         Relationships: []
       }
+      deposits: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          id: string
+          payment_method: string
+          status: Database["public"]["Enums"]["deposit_status"]
+          transfer_content: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          payment_method?: string
+          status?: Database["public"]["Enums"]["deposit_status"]
+          transfer_content?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          payment_method?: string
+          status?: Database["public"]["Enums"]["deposit_status"]
+          transfer_content?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string | null
@@ -413,6 +455,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      deposit_status: "pending" | "approved" | "rejected"
       key_status: "available" | "sold" | "expired"
       order_status: "pending" | "paid" | "completed" | "cancelled"
     }
@@ -543,6 +586,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      deposit_status: ["pending", "approved", "rejected"],
       key_status: ["available", "sold", "expired"],
       order_status: ["pending", "paid", "completed", "cancelled"],
     },

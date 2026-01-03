@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Wallet, 
   CreditCard, 
@@ -15,7 +17,8 @@ import {
   Copy, 
   CheckCircle2,
   ArrowRight,
-  QrCode
+  QrCode,
+  Loader2
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,9 +36,11 @@ const Deposit = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [amount, setAmount] = useState<number>(100000);
   const [customAmount, setCustomAmount] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const handleCopy = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -52,6 +57,33 @@ const Deposit = () => {
   };
 
   const transferContent = `NAP${user?.id?.slice(0, 8).toUpperCase() || "KEYSTORE"}`;
+
+  const createDepositMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from('deposits').insert({
+        user_id: user!.id,
+        amount,
+        payment_method: 'bank_transfer',
+        transfer_content: transferContent,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deposits'] });
+      toast({
+        title: "Đã gửi yêu cầu!",
+        description: "Yêu cầu nạp tiền của bạn đang chờ xử lý. Vui lòng chuyển khoản theo thông tin đã cung cấp.",
+      });
+      setHasSubmitted(true);
+    },
+    onError: () => {
+      toast({
+        title: "Lỗi!",
+        description: "Không thể tạo yêu cầu nạp tiền. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    },
+  });
 
   if (!user) {
     return (
@@ -239,13 +271,48 @@ const Deposit = () => {
                           ))}
                         </div>
 
-                        <div className="p-4 rounded-lg bg-accent/10 border border-accent/20">
+                        <div className="p-4 rounded-lg bg-accent/10 border border-accent/20 mb-4">
                           <p className="text-sm text-muted-foreground">
                             <strong className="text-accent">Lưu ý:</strong> Vui lòng nhập đúng nội dung chuyển khoản 
-                            để hệ thống tự động xác nhận. Nếu sau 5 phút chưa nhận được tiền, 
-                            vui lòng liên hệ hỗ trợ.
+                            để hệ thống xác nhận. Admin sẽ duyệt yêu cầu trong vòng 1-5 phút.
                           </p>
                         </div>
+
+                        {hasSubmitted ? (
+                          <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
+                            <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                            <p className="font-medium text-green-400">Yêu cầu đã được gửi!</p>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Vui lòng chuyển khoản và chờ admin xác nhận.
+                            </p>
+                            <Button 
+                              variant="outline" 
+                              className="mt-3"
+                              onClick={() => navigate('/profile')}
+                            >
+                              Xem lịch sử nạp tiền
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button 
+                            className="w-full glow-primary" 
+                            size="lg"
+                            onClick={() => createDepositMutation.mutate()}
+                            disabled={createDepositMutation.isPending || amount < 10000}
+                          >
+                            {createDepositMutation.isPending ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Đang xử lý...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle2 className="w-4 h-4 mr-2" />
+                                Xác nhận đã chuyển khoản ({formatAmount(amount)}đ)
+                              </>
+                            )}
+                          </Button>
+                        )}
                       </CardContent>
                     </Card>
                   </TabsContent>

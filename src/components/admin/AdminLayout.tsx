@@ -9,7 +9,8 @@ import {
   Users, 
   LogOut,
   ChevronLeft,
-  FolderOpen
+  FolderOpen,
+  Wallet
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,7 @@ const menuItems = [
   { icon: FolderOpen, label: 'Danh mục', path: '/admin/categories' },
   { icon: Key, label: 'Keys', path: '/admin/keys' },
   { icon: ShoppingCart, label: 'Đơn hàng', path: '/admin/orders' },
+  { icon: Wallet, label: 'Nạp tiền', path: '/admin/deposits' },
   { icon: Users, label: 'Người dùng', path: '/admin/users' },
 ];
 
