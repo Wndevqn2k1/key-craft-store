@@ -288,8 +288,6 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            <p className="text-muted-foreground">{product.description}</p>
-
             {/* Features */}
             {product.features && product.features.length > 0 && (
               <div className="space-y-2">
@@ -408,6 +406,16 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+
+        {/* Product Description Section */}
+        {product.description && (
+          <div className="mt-12 border-t border-border pt-8">
+            <h2 className="text-2xl font-bold text-foreground mb-4">Mô Tả Sản Phẩm</h2>
+            <div className="prose prose-sm max-w-none text-muted-foreground">
+              <p className="whitespace-pre-line">{product.description}</p>
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
     </div>
