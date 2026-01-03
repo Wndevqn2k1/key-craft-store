@@ -178,7 +178,7 @@ const Checkout = () => {
 
   const handleCloseSuccessModal = () => {
     setShowSuccessModal(false);
-    navigate('/');
+    // Stay on page, don't navigate away
   };
 
   if (!user) {
