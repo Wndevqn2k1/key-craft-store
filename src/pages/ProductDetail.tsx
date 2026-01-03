@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import { ProductWithTiers, PriceTier } from '@/types/database';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -18,7 +20,8 @@ import {
   Package,
   Shield,
   Zap,
-  Clock
+  Clock,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -30,7 +33,10 @@ interface ProductImage {
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [product, setProduct] = useState<ProductWithTiers | null>(null);
   const [selectedTier, setSelectedTier] = useState<PriceTier | null>(null);
   const [keyStock, setKeyStock] = useState<Record<string, number>>({});
@@ -124,6 +130,42 @@ const ProductDetail = () => {
     setIsAddingToCart(true);
     await addToCart(product.id, selectedTier.id);
     setIsAddingToCart(false);
+  };
+
+  const handleBuyNow = () => {
+    if (!product || !selectedTier) return;
+    
+    if (!user) {
+      toast({ 
+        title: 'Vui lòng đăng nhập', 
+        description: 'Bạn cần đăng nhập để thanh toán',
+        variant: 'destructive' 
+      });
+      navigate('/auth');
+      return;
+    }
+
+    navigate('/checkout', {
+      state: {
+        directItem: {
+          product_id: product.id,
+          price_tier_id: selectedTier.id,
+          quantity: 1,
+          product: {
+            id: product.id,
+            name: product.name,
+            image: product.image,
+            category: product.category,
+          },
+          price_tier: {
+            id: selectedTier.id,
+            duration_label: selectedTier.duration_label,
+            price: selectedTier.price,
+            original_price: selectedTier.original_price,
+          },
+        }
+      }
+    });
   };
 
   const formatPrice = (price: number) => {
@@ -378,16 +420,28 @@ const ProductDetail = () => {
               )}
             </div>
 
-            {/* Add to Cart Button */}
-            <Button
-              size="lg"
-              className="w-full"
-              disabled={!selectedTier || (keyStock[selectedTier?.id || ''] || 0) === 0 || isAddingToCart}
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              {isAddingToCart ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button
+                size="lg"
+                variant="outline"
+                className="flex-1"
+                disabled={!selectedTier || (keyStock[selectedTier?.id || ''] || 0) === 0 || isAddingToCart}
+                onClick={handleAddToCart}
+              >
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                {isAddingToCart ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
+              </Button>
+              <Button
+                size="lg"
+                className="flex-1"
+                disabled={!selectedTier || (keyStock[selectedTier?.id || ''] || 0) === 0}
+                onClick={handleBuyNow}
+              >
+                <CreditCard className="mr-2 h-5 w-5" />
+                Thanh toán ngay
+              </Button>
+            </div>
 
             {/* Trust Badges */}
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
