@@ -109,7 +109,7 @@ export function Header() {
             )}
 
             {/* Cart */}
-            <Link to="/cart">
+            <Link to="/checkout">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="w-5 h-5" />
                 {cartCount > 0 && (

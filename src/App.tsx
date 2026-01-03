@@ -13,7 +13,6 @@ import ProductDetail from "./pages/ProductDetail";
 import About from "./pages/About";
 import Deposit from "./pages/Deposit";
 import Profile from "./pages/Profile";
-import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -43,7 +42,7 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/deposit" element={<Deposit />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/cart" element={<Cart />} />
+                <Route path="/cart" element={<Checkout />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/products" element={<AdminProducts />} />
