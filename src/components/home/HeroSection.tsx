@@ -8,10 +8,13 @@ export function HeroSection() {
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
-      
+      <div
+        className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/20 rounded-full blur-3xl animate-float"
+        style={{ animationDelay: "2s" }}
+      />
+
       {/* Grid Pattern */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `linear-gradient(hsl(var(--primary)) 1px, transparent 1px),
@@ -29,30 +32,43 @@ export function HeroSection() {
           </div>
 
           {/* Title */}
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <span className="text-foreground">KEY BẢN QUYỀN</span>
+          <h1
+            className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in"
+            style={{ animationDelay: "0.1s" }}
+          >
+            <span className="text-foreground">KEY TOOL/MOD</span>
             <br />
-            <span className="text-gradient">CHÍNH HÃNG</span>
+            <span className="text-gradient">UY TÍN HÀNG ĐẦU</span>
           </h1>
 
           {/* Description */}
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            Cung cấp key phần mềm, game, tài khoản premium với giá tốt nhất. 
-            Kích hoạt nhanh chóng, bảo hành uy tín, hỗ trợ tận tình.
+          <p
+            className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in"
+            style={{ animationDelay: "0.2s" }}
+          >
+            Cung cấp key phần mềm, game, tài khoản, tool mod với giá tốt nhất. Kích hoạt nhanh chóng, bảo hành uy tín,
+            hỗ trợ tận tình.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <Button 
-              size="lg" 
+          <div
+            className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in"
+            style={{ animationDelay: "0.3s" }}
+          >
+            <Button
+              size="lg"
               className="font-display text-lg px-8 glow-primary group"
-              onClick={() => document.getElementById('featured-products')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => document.getElementById("featured-products")?.scrollIntoView({ behavior: "smooth" })}
             >
               Khám phá ngay
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Link to="/deposit">
-              <Button size="lg" variant="outline" className="font-display text-lg px-8 hover:border-primary hover:text-primary">
+              <Button
+                size="lg"
+                variant="outline"
+                className="font-display text-lg px-8 hover:border-primary hover:text-primary"
+              >
                 <Wallet className="w-5 h-5 mr-2" />
                 Nạp tiền
               </Button>
