@@ -43,12 +43,14 @@ export function HeroSection() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <Link to="/products">
-              <Button size="lg" className="font-display text-lg px-8 glow-primary group">
-                Khám phá ngay
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
+            <Button 
+              size="lg" 
+              className="font-display text-lg px-8 glow-primary group"
+              onClick={() => document.getElementById('featured-products')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              Khám phá ngay
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
             <Link to="/contact">
               <Button size="lg" variant="outline" className="font-display text-lg px-8 hover:border-primary hover:text-primary">
                 Liên hệ tư vấn
