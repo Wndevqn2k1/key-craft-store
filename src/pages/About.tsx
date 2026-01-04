@@ -106,7 +106,7 @@ const About = () => {
   return (
     <>
       <Helmet>
-        <title>Giới thiệu & Liên hệ - KeyStore</title>
+        <title>Giới thiệu & Liên hệ - GOODTEAM</title>
         <meta
           name="description"
           content="KeyStore - Đơn vị cung cấp key bản quyền phần mềm, game uy tín hàng đầu Việt Nam. Liên hệ ngay để được hỗ trợ."
@@ -124,7 +124,7 @@ const About = () => {
             
             <div className="container mx-auto px-4 relative z-10">
               <h1 className="font-display text-4xl md:text-6xl font-bold text-center mb-6">
-                Về <span className="text-gradient">KeyStore</span>
+                Về <span className="text-gradient">GOODTEAM</span>
               </h1>
               <p className="text-muted-foreground text-lg md:text-xl text-center max-w-3xl mx-auto">
                 Chúng tôi là đơn vị tiên phong trong lĩnh vực cung cấp key bản quyền phần mềm, 
@@ -160,7 +160,7 @@ const About = () => {
           <section className="py-20">
             <div className="container mx-auto px-4">
               <h2 className="font-display text-3xl md:text-4xl font-bold text-center mb-4">
-                Tại sao chọn <span className="text-primary">KeyStore</span>?
+                Tại sao chọn <span className="text-primary">GOODTEAM</span>?
               </h2>
               <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-12">
                 Chúng tôi cam kết mang đến trải nghiệm tốt nhất cho khách hàng
@@ -196,7 +196,7 @@ const About = () => {
                 </h2>
                 <div className="prose prose-lg prose-invert max-w-none text-center">
                   <p className="text-muted-foreground mb-6">
-                    KeyStore được thành lập với mong muốn giúp người dùng Việt Nam tiếp cận 
+                    GOODTEAM được thành lập với mong muốn giúp người dùng Việt Nam tiếp cận 
                     với phần mềm bản quyền một cách dễ dàng và tiết kiệm. Chúng tôi hiểu rằng 
                     việc sử dụng phần mềm bản quyền không chỉ đảm bảo trải nghiệm tốt nhất mà 
                     còn góp phần vào việc bảo vệ quyền sở hữu trí tuệ.
@@ -209,7 +209,7 @@ const About = () => {
                   <p className="text-muted-foreground">
                     Chúng tôi cam kết tiếp tục đổi mới và nâng cao chất lượng dịch vụ để 
                     xứng đáng với sự tin tưởng của hàng nghìn khách hàng đã đồng hành cùng 
-                    KeyStore trong suốt thời gian qua.
+                    GOODTEAM trong suốt thời gian qua.
                   </p>
                 </div>
               </div>

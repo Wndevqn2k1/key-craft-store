@@ -181,7 +181,7 @@ const Deposit = () => {
     return (
       <>
         <Helmet>
-          <title>Nạp tiền - KeyStore</title>
+          <title>Nạp tiền - GOODTEAM</title>
         </Helmet>
         <div className="min-h-screen flex flex-col">
           <Header />
@@ -206,7 +206,7 @@ const Deposit = () => {
   return (
     <>
       <Helmet>
-        <title>Nạp tiền - KeyStore</title>
+        <title>Nạp tiền - GOODTEAM</title>
         <meta
           name="description"
           content="Nạp tiền vào tài khoản KeyStore qua chuyển khoản ngân hàng, VNPay hoặc MoMo."

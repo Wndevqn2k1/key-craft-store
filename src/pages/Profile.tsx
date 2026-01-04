@@ -195,7 +195,7 @@ const Profile = () => {
     return (
       <>
         <Helmet>
-          <title>Hồ sơ - KeyStore</title>
+          <title>Hồ sơ - GOODTEAM</title>
         </Helmet>
         <div className="min-h-screen flex flex-col">
           <Header />
@@ -220,7 +220,7 @@ const Profile = () => {
   return (
     <>
       <Helmet>
-        <title>Hồ sơ của tôi - KeyStore</title>
+        <title>Hồ sơ của tôi - GOODTEAM</title>
         <meta
           name="description"
           content="Quản lý thông tin tài khoản, lịch sử nạp tiền và lịch sử mua hàng."

@@ -184,7 +184,7 @@ const OrderSuccess = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Thanh toán thành công - KeyStore</title>
+        <title>Thanh toán thành công - GOODTEAM</title>
       </Helmet>
       <Header />
       <main className="container mx-auto px-4 py-8">
@@ -195,7 +195,7 @@ const OrderSuccess = () => {
               <CheckCircle className="w-12 h-12 text-green-600" />
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Thanh toán thành công!</h1>
-            <p className="text-muted-foreground">Cảm ơn bạn đã mua hàng tại KeyStore</p>
+            <p className="text-muted-foreground">Cảm ơn bạn đã mua hàng tại GOODTEAM</p>
           </div>
 
           {/* Order Info */}

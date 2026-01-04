@@ -147,7 +147,7 @@ const Auth = () => {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Gamepad2 className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-foreground">KeyStore</span>
+            <span className="text-2xl font-bold text-foreground">GOODTEAM</span>
           </div>
           <CardTitle className="text-xl">Chào mừng bạn</CardTitle>
           <CardDescription>Đăng nhập hoặc tạo tài khoản mới</CardDescription>

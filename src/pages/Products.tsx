@@ -47,7 +47,7 @@ const Products = () => {
   return (
     <>
       <Helmet>
-        <title>Sản phẩm - KeyStore</title>
+        <title>Sản phẩm - GOODTEAM</title>
         <meta
           name="description"
           content="Khám phá các sản phẩm key bản quyền phần mềm, game, tài khoản premium chính hãng với giá tốt nhất."

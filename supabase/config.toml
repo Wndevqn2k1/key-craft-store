@@ -1,4 +1,4 @@
-project_id = "owxsbhnrvarsejoldamj"
+project_id = "hnudnukpzatazggejgws"
 
 [functions.check-vcb-transactions]
 verify_jwt = false
