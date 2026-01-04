@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { Card, CardContent } from '@/components/ui/card';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminTableShell } from '@/components/admin/AdminTableShell';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 const AdminOrders = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['admin-orders'],
@@ -74,14 +76,40 @@ const AdminOrders = () => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
 
+  const filteredOrders = useMemo(() => {
+    if (!orders) return [];
+    if (statusFilter === 'all') return orders;
+    return orders.filter((order) => order.status === statusFilter);
+  }, [orders, statusFilter]);
+
+  const tabs = [
+    { value: 'all', label: 'Tất cả' },
+    { value: 'pending', label: 'Chờ xử lý' },
+    { value: 'paid', label: 'Đã thanh toán' },
+    { value: 'completed', label: 'Hoàn thành' },
+    { value: 'cancelled', label: 'Đã hủy' },
+  ];
+
   return (
     <AdminLayout>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Quản lý đơn hàng</h1>
-      </div>
+      <AdminPageHeader
+        title="Đơn hàng"
+        description="Theo dõi và cập nhật trạng thái đơn hàng theo thời gian thực"
+        breadcrumbs={[
+          { label: 'Trang chủ', href: '/' },
+          { label: 'Admin', href: '/admin' },
+          { label: 'Đơn hàng' },
+        ]}
+        tabs={tabs}
+        currentTab={statusFilter}
+        onTabChange={setStatusFilter}
+      />
 
-      <Card>
-        <CardContent className="p-0">
+      <div className="pt-6">
+        <AdminTableShell
+          title="Danh sách đơn hàng"
+          description="Lọc theo trạng thái để xử lý nhanh hơn"
+        >
           <Table>
             <TableHeader>
               <TableRow>
@@ -97,14 +125,14 @@ const AdminOrders = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">Đang tải...</TableCell>
+                  <TableCell colSpan={7} className="py-8 text-center">Đang tải...</TableCell>
                 </TableRow>
-              ) : orders?.length === 0 ? (
+              ) : filteredOrders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">Chưa có đơn hàng nào</TableCell>
+                  <TableCell colSpan={7} className="py-8 text-center">Không tìm thấy đơn phù hợp</TableCell>
                 </TableRow>
               ) : (
-                orders?.map((order) => (
+                filteredOrders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell className="font-mono text-sm">{order.id.slice(0, 8)}</TableCell>
                     <TableCell>
@@ -142,8 +170,8 @@ const AdminOrders = () => {
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </AdminTableShell>
+      </div>
     </AdminLayout>
   );
 };
