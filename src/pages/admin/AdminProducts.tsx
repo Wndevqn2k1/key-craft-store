@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -53,6 +54,8 @@ const AdminProducts = () => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const [mainImageFile, setMainImageFile] = useState<File | null>(null);
+  const [deleteTierIndex, setDeleteTierIndex] = useState<number | null>(null);
+  const [originalTierIds, setOriginalTierIds] = useState<string[]>([]);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -197,12 +200,43 @@ const AdminProducts = () => {
         .eq('id', id);
       if (error) throw error;
 
-      // Delete old price tiers and insert new ones
-      const { error: deleteTiersError } = await supabase.from('price_tiers').delete().eq('product_id', id);
-      if (deleteTiersError) throw deleteTiersError;
+      // Handle price tiers: update existing, insert new, delete removed (if safe)
+      const currentTierIds = priceTiers.filter(t => t.id).map(t => t.id!);
+      const tiersToDelete = originalTierIds.filter(id => !currentTierIds.includes(id));
       
-      if (priceTiers.length > 0) {
-        const tiersToInsert = priceTiers.map(tier => ({
+      // Try to delete removed tiers (will fail if they have order_items)
+      for (const tierId of tiersToDelete) {
+        const { error: deleteError } = await supabase
+          .from('price_tiers')
+          .delete()
+          .eq('id', tierId);
+        if (deleteError) {
+          // If foreign key error, skip deletion - tier is in use
+          if (!deleteError.message.includes('foreign key constraint')) {
+            throw deleteError;
+          }
+        }
+      }
+      
+      // Update existing tiers
+      for (const tier of priceTiers.filter(t => t.id)) {
+        const { error: updateError } = await supabase
+          .from('price_tiers')
+          .update({
+            duration: tier.duration,
+            duration_label: tier.duration_label,
+            price: tier.price,
+            original_price: tier.original_price,
+            is_popular: tier.is_popular,
+          })
+          .eq('id', tier.id);
+        if (updateError) throw updateError;
+      }
+      
+      // Insert new tiers
+      const newTiers = priceTiers.filter(t => !t.id);
+      if (newTiers.length > 0) {
+        const tiersToInsert = newTiers.map(tier => ({
           product_id: id,
           duration: tier.duration,
           duration_label: tier.duration_label,
@@ -295,14 +329,16 @@ const AdminProducts = () => {
     });
     
     // Load price tiers
-    setPriceTiers(product.price_tiers?.map((tier: any) => ({
+    const loadedTiers = product.price_tiers?.map((tier: any) => ({
       id: tier.id,
       duration: tier.duration,
       duration_label: tier.duration_label,
       price: tier.price,
       original_price: tier.original_price,
       is_popular: tier.is_popular,
-    })) || []);
+    })) || [];
+    setPriceTiers(loadedTiers);
+    setOriginalTierIds(loadedTiers.map((t: PriceTierForm) => t.id!).filter(Boolean));
     
     // Load product images
     setProductImages(product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order).map((img: any) => ({
@@ -339,8 +375,15 @@ const AdminProducts = () => {
     setPriceTiers(updated);
   };
 
-  const removePriceTier = (index: number) => {
-    setPriceTiers(priceTiers.filter((_, i) => i !== index));
+  const confirmRemovePriceTier = (index: number) => {
+    setDeleteTierIndex(index);
+  };
+
+  const removePriceTier = () => {
+    if (deleteTierIndex !== null) {
+      setPriceTiers(priceTiers.filter((_, i) => i !== deleteTierIndex));
+      setDeleteTierIndex(null);
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -597,7 +640,7 @@ const AdminProducts = () => {
                                 type="button" 
                                 variant="ghost" 
                                 size="icon"
-                                onClick={() => removePriceTier(index)}
+                                onClick={() => confirmRemovePriceTier(index)}
                               >
                                 <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
@@ -861,6 +904,24 @@ const AdminProducts = () => {
           />
         </DialogContent>
       </Dialog>
+      
+      {/* Confirm Delete Price Tier Dialog */}
+      <AlertDialog open={deleteTierIndex !== null} onOpenChange={(open) => !open && setDeleteTierIndex(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa phân loại</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa phân loại này? Nếu phân loại đã có đơn hàng, nó sẽ không thể xóa được.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={removePriceTier} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 };
