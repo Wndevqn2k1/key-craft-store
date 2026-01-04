@@ -198,7 +198,8 @@ const AdminProducts = () => {
       if (error) throw error;
 
       // Delete old price tiers and insert new ones
-      await supabase.from('price_tiers').delete().eq('product_id', id);
+      const { error: deleteTiersError } = await supabase.from('price_tiers').delete().eq('product_id', id);
+      if (deleteTiersError) throw deleteTiersError;
       
       if (priceTiers.length > 0) {
         const tiersToInsert = priceTiers.map(tier => ({
