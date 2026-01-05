@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Gamepad2, Mail, Lock, User, Loader2 } from 'lucide-react';
+import { Gamepad2, Mail, Lock, User, Loader2, Phone } from 'lucide-react';
 import { z } from 'zod';
 
 const emailSchema = z.string().email('Email không hợp lệ');
@@ -27,6 +27,7 @@ const Auth = () => {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerFullName, setRegisterFullName] = useState('');
+  const [registerPhone, setRegisterPhone] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
@@ -108,7 +109,7 @@ const Auth = () => {
       return;
     }
 
-    const { error } = await signUp(registerEmail, registerPassword, registerFullName);
+    const { error } = await signUp(registerEmail, registerPassword, registerFullName, registerPhone);
 
     if (error) {
       let message = 'Đã xảy ra lỗi khi đăng ký';
@@ -216,6 +217,20 @@ const Auth = () => {
                       placeholder="Nguyễn Văn A"
                       value={registerFullName}
                       onChange={(e) => setRegisterFullName(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="register-phone">Số điện thoại</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="register-phone"
+                      type="tel"
+                      placeholder="0912345678"
+                      value={registerPhone}
+                      onChange={(e) => setRegisterPhone(e.target.value)}
                       className="pl-10"
                     />
                   </div>
