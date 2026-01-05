@@ -34,24 +34,35 @@ export function ProductGrid() {
       ? list.filter((p) => p.category === selectedCategory)
       : list;
 
-    // Prefer products that have a badge
-    const preferred = categoryFiltered.filter((p) => !!p.badge && /hot|top|sale|premium|best|new/i.test(p.badge));
-
-    const picked = new Set<string>();
-    const result = [] as typeof list;
-
-    for (const p of preferred) {
-      if (result.length >= 3) break;
-      result.push(p);
-      picked.add(p.id);
+    // First, get featured products
+    const featured = categoryFiltered.filter((p: any) => p.is_featured === true);
+    
+    // If we don't have enough featured products, add products with badges
+    if (featured.length < 3) {
+      const withBadges = categoryFiltered.filter(
+        (p: any) => !p.is_featured && p.badge && /hot|top|sale|premium|best|new/i.test(p.badge)
+      );
+      featured.push(...withBadges.slice(0, 3 - featured.length));
     }
-
-    for (const p of categoryFiltered) {
-      if (result.length >= 3) break;
-      if (!picked.has(p.id)) result.push(p);
+    
+    // If still not enough, add remaining products
+    if (featured.length < 3) {
+      const remaining = categoryFiltered.filter(
+        (p: any) => !featured.includes(p)
+      );
+      featured.push(...remaining.slice(0, 3 - featured.length));
     }
-
-    return result;
+    
+    // Sort by display_order (descending), then by created_at (descending)
+    const sorted = featured
+      .sort((a: any, b: any) => {
+        const orderDiff = (a.display_order || 0) - (b.display_order || 0);
+        if (orderDiff !== 0) return orderDiff;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      })
+      .slice(0, 3);
+    
+    return sorted;
   })();
 
   return (

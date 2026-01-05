@@ -20,7 +20,7 @@ const AdminOrders = () => {
     queryFn: async () => {
       const { data: ordersData, error } = await supabase
         .from('orders')
-        .select('*, order_items(*, products(name), price_tiers(duration_label))')
+        .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
       
@@ -33,10 +33,38 @@ const AdminOrders = () => {
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
       
-      return ordersData?.map(order => ({
-        ...order,
-        profile: profileMap.get(order.user_id) || null,
-      }));
+      // Fetch order items for each order
+      const ordersWithDetails = await Promise.all(
+        (ordersData || []).map(async (order) => {
+          const { data: items } = await supabase
+            .from('order_items')
+            .select('id, quantity, unit_price, product_id, price_tier_id')
+            .eq('order_id', order.id);
+
+          const itemsWithDetails = await Promise.all(
+            (items || []).map(async (item) => {
+              const [productRes, tierRes] = await Promise.all([
+                supabase.from('products').select('name').eq('id', item.product_id).single(),
+                supabase.from('price_tiers').select('duration_label').eq('id', item.price_tier_id).single(),
+              ]);
+
+              return {
+                ...item,
+                products: productRes.data,
+                price_tiers: tierRes.data,
+              };
+            })
+          );
+
+          return {
+            ...order,
+            profile: profileMap.get(order.user_id) || null,
+            order_items: itemsWithDetails,
+          };
+        })
+      );
+      
+      return ordersWithDetails;
     },
   });
 

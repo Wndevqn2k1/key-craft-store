@@ -27,13 +27,15 @@ export function SEO({
   const { data: settings } = useSiteSettings();
   
   const siteName = settings?.site_name || 'GOODTEAM';
-  const defaultTitle = settings?.site_title || 'GOODTEAM - Key Bản Quyền Phần Mềm & Game Chính Hãng';
-  const defaultDescription = 'Cung cấp key bản quyền phần mềm, game, tài khoản premium chính hãng với giá tốt nhất. Giao key tự động 24/7, bảo hành uy tín.';
+  const defaultTitle = settings?.site_title || 'MuaHackVip.com - GOODTEAM GOODGAME | Mua Key Hackmap, Tool Game Giá Rẻ';
+  const defaultDescription = 'MuaHackVip.com - GOODTEAM GOODGAME cung cấp key bản quyền phần mềm, game, hackmap, tool game chính hãng. Mua key Windows, Office, hackmap LMHT, AOV, Liên Quân giá rẻ. Giao key tự động 24/7, bảo hành uy tín. Chuyên hackmap LMHT, AOV, Liên Quân Mobile, tool auto farm.';
+  const defaultKeywords = 'muahackvip, muahackvip.com, goodteam, goodgame, mua key, key bản quyền, hackmap, tool game, key windows, key office, hackmap lol, hackmap lmht, hackmap aov, hackmap liên quân, tool liên quân mobile, cheat aov, aov đài loan, aov thái lan, key giá rẻ, mua hack vip';
   const defaultImage = settings?.logo_url || '/logo.png';
   const siteUrl = 'https://muahackvip.com';
   
   const fullTitle = title ? `${title} - ${siteName}` : defaultTitle;
   const fullDescription = description || defaultDescription;
+  const fullKeywords = keywords || defaultKeywords;
   const fullImage = image || defaultImage;
   const fullUrl = url || (typeof window !== 'undefined' ? window.location.href : siteUrl);
 
@@ -45,7 +47,7 @@ export function SEO({
       {/* Basic Meta Tags */}
       <title>{fullTitle}</title>
       <meta name="description" content={fullDescription} />
-      {keywords && <meta name="keywords" content={keywords} />}
+      <meta name="keywords" content={fullKeywords} />
       <link rel="canonical" href={fullUrl} />
       
       {/* Open Graph / Facebook */}

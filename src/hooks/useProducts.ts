@@ -13,6 +13,9 @@ export interface Product {
   in_stock: boolean | null;
   features: string[] | null;
   price_tiers: PriceTier[];
+  display_order: number;
+  is_featured: boolean;
+  created_at: string;
 }
 
 export interface PriceTier {
@@ -32,6 +35,7 @@ export const useProducts = () => {
         .from('products')
         .select('*, price_tiers(*)')
         .eq('in_stock', true)
+        .order('display_order', { ascending: false })
         .order('created_at', { ascending: false });
       
       if (error) throw error;

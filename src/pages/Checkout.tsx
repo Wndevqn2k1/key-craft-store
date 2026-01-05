@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useIsReseller } from '@/hooks/useUserRole';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const isReseller = useIsReseller();
   const { cartItems, isLoading: cartLoading, cartTotal, removeFromCart, updateQuantity, clearCart } = useCart();
   
   const [userBalance, setUserBalance] = useState(0);
@@ -104,13 +106,17 @@ const Checkout = () => {
       // Assign keys using secure RPC function with row locking
       // This prevents race conditions where multiple users could get the same key
       for (const item of cartItems) {
+        const actualPrice = isReseller && item.price_tier.reseller_price 
+          ? item.price_tier.reseller_price 
+          : item.price_tier.price;
+        
         const { error: assignError } = await supabase
           .rpc('assign_product_keys', {
             p_order_id: order.id,
             p_product_id: item.product_id,
             p_price_tier_id: item.price_tier_id,
             p_quantity: item.quantity,
-            p_unit_price: item.price_tier.price,
+            p_unit_price: actualPrice,
             p_buyer_id: user.id,
           });
 
@@ -128,6 +134,50 @@ const Checkout = () => {
         .from('profiles')
         .update({ balance: userBalance - totalAmount })
         .eq('id', user.id);
+
+      // Get order items with keys for email
+      const { data: orderItems } = await supabase
+        .from('order_items')
+        .select('product_id, price_tier_id, key_id')
+        .eq('order_id', order.id);
+
+      // Get product and key details
+      const emailKeys = await Promise.all(
+        (orderItems || []).map(async (item) => {
+          const [productResult, tierResult, keyResult] = await Promise.all([
+            supabase.from('products').select('name').eq('id', item.product_id).single(),
+            supabase.from('price_tiers').select('duration').eq('id', item.price_tier_id).single(),
+            supabase.from('product_keys').select('key_value').eq('id', item.key_id).single(),
+          ]);
+          
+          return {
+            productName: productResult.data?.name || 'Sản phẩm',
+            duration: tierResult.data?.duration || '',
+            keyValue: keyResult.data?.key_value || 'Đang xử lý',
+          };
+        })
+      );
+
+      // Send confirmation email
+      try {
+        const { data, error } = await supabase.functions.invoke('send-order-email', {
+          body: {
+            orderId: order.id,
+            userEmail: user.email,
+            userName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Khách hàng',
+            userId: user.id,
+            keys: emailKeys,
+            totalAmount: totalAmount,
+          },
+        });
+        
+        if (error) {
+          console.error('Email error:', error);
+        }
+      } catch (emailError) {
+        console.error('Failed to send email:', emailError);
+        // Don't fail the order if email fails, just log it
+      }
 
       // Clear cart
       await clearCart();
@@ -261,12 +311,12 @@ const Checkout = () => {
                         </div>
                         <div className="text-right">
                           <div className="font-bold text-foreground">
-                            {formatPrice(item.price_tier.price)}
+                            {formatPrice(isReseller && item.price_tier.reseller_price ? item.price_tier.reseller_price : item.price_tier.price)}
                           </div>
-                          {item.price_tier.original_price && item.price_tier.original_price > item.price_tier.price && (
+                          {item.price_tier.original_price && item.price_tier.original_price > (isReseller && item.price_tier.reseller_price ? item.price_tier.reseller_price : item.price_tier.price) && (
                             <div className="flex items-center gap-2 justify-end">
                               <Badge variant="destructive" className="text-xs">
-                                -{Math.round((1 - item.price_tier.price / item.price_tier.original_price) * 100)}%
+                                -{Math.round((1 - (isReseller && item.price_tier.reseller_price ? item.price_tier.reseller_price : item.price_tier.price) / item.price_tier.original_price) * 100)}%
                               </Badge>
                               <span className="text-sm text-muted-foreground line-through">
                                 {formatPrice(item.price_tier.original_price)}

@@ -125,8 +125,43 @@ const AdminDeposits = () => {
         }
       }
     },
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['admin-deposits'] });
+      
+      // Send email notification
+      if (selectedDeposit) {
+        try {
+          // Get user profile for email
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('email, full_name, balance')
+            .eq('id', selectedDeposit.user_id)
+            .single();
+
+          if (profile?.email) {
+            const { data, error } = await supabase.functions.invoke('send-deposit-email', {
+              body: {
+                depositId: selectedDeposit.id,
+                userEmail: profile.email,
+                userName: profile.full_name || profile.email.split('@')[0],
+                userId: selectedDeposit.user_id,
+                amount: selectedDeposit.amount,
+                status: variables.status,
+                adminNote: variables.admin_note,
+                newBalance: variables.status === 'approved' ? profile.balance : undefined,
+              },
+            });
+            
+            if (error) {
+              console.error('Deposit email error:', error);
+            }
+          }
+        } catch (emailError) {
+          console.error('Failed to send deposit email:', emailError);
+          // Don't fail the operation if email fails
+        }
+      }
+      
       toast({
         title: variables.status === 'approved' ? "Đã duyệt!" : "Đã từ chối!",
         description: variables.status === 'approved' 

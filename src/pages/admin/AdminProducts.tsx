@@ -22,6 +22,7 @@ interface PriceTierForm {
   duration: string;
   duration_label: string;
   price: number;
+  reseller_price: number | null;
   original_price: number | null;
   is_popular: boolean;
 }
@@ -44,6 +45,8 @@ const AdminProducts = () => {
     image: '',
     badge: '',
     features: '',
+    display_order: 0,
+    is_featured: false,
   });
   const [priceTiers, setPriceTiers] = useState<PriceTierForm[]>([]);
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
@@ -66,6 +69,7 @@ const AdminProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .select('*, price_tiers(*), product_images(*)')
+        .order('display_order', { ascending: false })
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data;
@@ -119,6 +123,8 @@ const AdminProducts = () => {
         image: mainImageUrl,
         badge: data.badge || null,
         features: data.features ? data.features.split(',').map(f => f.trim()) : [],
+        display_order: data.display_order || 0,
+        is_featured: data.is_featured || false,
       }).select().single();
       
       if (error) throw error;
@@ -130,6 +136,7 @@ const AdminProducts = () => {
           duration: tier.duration,
           duration_label: tier.duration_label,
           price: tier.price,
+          reseller_price: tier.reseller_price || Math.round(tier.price * 0.9),
           original_price: tier.original_price,
           is_popular: tier.is_popular,
         }));
@@ -196,6 +203,8 @@ const AdminProducts = () => {
           image: mainImageUrl,
           badge: data.badge || null,
           features: data.features ? data.features.split(',').map(f => f.trim()) : [],
+          display_order: data.display_order || 0,
+          is_featured: data.is_featured || false,
         })
         .eq('id', id);
       if (error) throw error;
@@ -226,6 +235,7 @@ const AdminProducts = () => {
             duration: tier.duration,
             duration_label: tier.duration_label,
             price: tier.price,
+            reseller_price: tier.reseller_price || Math.round(tier.price * 0.9),
             original_price: tier.original_price,
             is_popular: tier.is_popular,
           })
@@ -308,7 +318,7 @@ const AdminProducts = () => {
   });
 
   const resetForm = () => {
-    setFormData({ name: '', description: '', category: '', image: '', badge: '', features: '' });
+    setFormData({ name: '', description: '', category: '', image: '', badge: '', features: '', display_order: 0, is_featured: false });
     setPriceTiers([]);
     setProductImages([]);
     setActiveTab('info');
@@ -326,6 +336,8 @@ const AdminProducts = () => {
       image: product.image || '',
       badge: product.badge || '',
       features: product.features?.join(', ') || '',
+      display_order: product.display_order || 0,
+      is_featured: product.is_featured || false,
     });
     
     // Load price tiers
@@ -334,6 +346,7 @@ const AdminProducts = () => {
       duration: tier.duration,
       duration_label: tier.duration_label,
       price: tier.price,
+      reseller_price: tier.reseller_price,
       original_price: tier.original_price,
       is_popular: tier.is_popular,
     })) || [];
@@ -364,6 +377,7 @@ const AdminProducts = () => {
       duration: '',
       duration_label: '',
       price: 0,
+      reseller_price: null,
       original_price: null,
       is_popular: false,
     }]);
@@ -613,6 +627,37 @@ const AdminProducts = () => {
                       placeholder="Bản quyền vĩnh viễn, Hỗ trợ 24/7..."
                     />
                   </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="display_order">Thứ tự hiển thị</Label>
+                      <Input
+                        id="display_order"
+                        type="number"
+                        value={formData.display_order}
+                        onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
+                        placeholder="0"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Số càng lớn hiển thị càng trước
+                      </p>
+                    </div>
+                    <div className="flex flex-col justify-end">
+                      <div className="flex items-center space-x-2 h-10">
+                        <Switch
+                          id="is_featured"
+                          checked={formData.is_featured}
+                          onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
+                        />
+                        <Label htmlFor="is_featured" className="cursor-pointer">
+                          Đánh dấu nổi bật
+                        </Label>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Hiển thị ở trang chủ
+                      </p>
+                    </div>
+                  </div>
                 </TabsContent>
                 
                 <TabsContent value="tiers" className="space-y-4 mt-4">
@@ -675,6 +720,18 @@ const AdminProducts = () => {
                                 />
                               </div>
                               <div>
+                                <Label className="text-xs">Giá Reseller (VND)</Label>
+                                <Input
+                                  type="number"
+                                  value={tier.reseller_price || Math.round(tier.price * 0.9)}
+                                  placeholder="Mặc định giảm 10%"
+                                  onChange={(e) => updatePriceTier(index, 'reseller_price', e.target.value ? Number(e.target.value) : null)}
+                                />
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
                                 <Label className="text-xs">Giá gốc (VND)</Label>
                                 <Input
                                   type="number"
@@ -683,14 +740,13 @@ const AdminProducts = () => {
                                   onChange={(e) => updatePriceTier(index, 'original_price', e.target.value ? Number(e.target.value) : null)}
                                 />
                               </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-2">
-                              <Switch
-                                checked={tier.is_popular}
-                                onCheckedChange={(checked) => updatePriceTier(index, 'is_popular', checked)}
-                              />
-                              <Label className="text-sm">Đánh dấu phổ biến</Label>
+                              <div className="flex items-center gap-2">
+                                <Switch
+                                  checked={tier.is_popular}
+                                  onCheckedChange={(checked) => updatePriceTier(index, 'is_popular', checked)}
+                                />
+                                <Label className="text-sm">Đánh dấu phổ biến</Label>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>

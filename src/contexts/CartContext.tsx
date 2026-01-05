@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
 import { CartItemWithDetails, Product, PriceTier } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
+import { useIsReseller } from '@/hooks/useUserRole';
 
 interface CartContextType {
   cartItems: CartItemWithDetails[];
@@ -29,12 +30,18 @@ export const useCart = () => {
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const isReseller = useIsReseller();
   const [cartItems, setCartItems] = useState<CartItemWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cartItems.reduce(
-    (sum, item) => sum + item.quantity * item.price_tier.price,
+    (sum, item) => {
+      const price = isReseller && item.price_tier.reseller_price 
+        ? item.price_tier.reseller_price 
+        : item.price_tier.price;
+      return sum + item.quantity * price;
+    },
     0
   );
 

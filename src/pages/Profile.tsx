@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useUserRole } from "@/hooks/useUserRole";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -23,7 +24,9 @@ import {
   XCircle,
   Clock,
   Eye,
-  EyeOff
+  EyeOff,
+  Shield,
+  UserCog
 } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -32,6 +35,7 @@ const Profile = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { data: userRole } = useUserRole();
   
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -79,21 +83,50 @@ const Profile = () => {
     queryKey: ['orders', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const { data, error } = await supabase
+      
+      // Get orders
+      const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select(`
-          *,
-          order_items (
-            *,
-            products (name, image),
-            price_tiers (duration_label),
-            product_keys (key_value)
-          )
-        `)
+        .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data;
+        .order('created_at', { ascending: false});
+
+      if (ordersError) throw ordersError;
+      if (!ordersData) return [];
+
+      // Get order items for each order
+      const ordersWithItems = await Promise.all(
+        ordersData.map(async (order) => {
+          const { data: items } = await supabase
+            .from('order_items')
+            .select('id, quantity, unit_price, product_id, price_tier_id, key_id')
+            .eq('order_id', order.id);
+
+          const itemsWithDetails = await Promise.all(
+            (items || []).map(async (item) => {
+              const [productRes, tierRes, keyRes] = await Promise.all([
+                supabase.from('products').select('name, image').eq('id', item.product_id).single(),
+                supabase.from('price_tiers').select('duration_label').eq('id', item.price_tier_id).single(),
+                item.key_id ? supabase.from('product_keys').select('key_value').eq('id', item.key_id).single() : Promise.resolve({ data: null }),
+              ]);
+
+              return {
+                ...item,
+                products: productRes.data,
+                price_tiers: tierRes.data,
+                product_keys: keyRes.data,
+              };
+            })
+          );
+
+          return {
+            ...order,
+            order_items: itemsWithDetails,
+          };
+        })
+      );
+
+      return ordersWithItems;
     },
     enabled: !!user?.id,
   });
@@ -191,6 +224,18 @@ const Profile = () => {
     }
   };
 
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return <Badge variant="destructive" className="gap-1"><Shield className="w-3 h-3" /> Quản trị viên</Badge>;
+      case 'reseller':
+        return <Badge variant="default" className="gap-1"><UserCog className="w-3 h-3" /> Đại lý</Badge>;
+      case 'user':
+      default:
+        return <Badge variant="secondary" className="gap-1"><User className="w-3 h-3" /> Người dùng</Badge>;
+    }
+  };
+
   if (!user) {
     return (
       <>
@@ -242,7 +287,10 @@ const Profile = () => {
                   <h1 className="font-display text-2xl md:text-3xl font-bold">
                     {profile?.full_name || user.email}
                   </h1>
-                  <p className="text-muted-foreground">{user.email}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-muted-foreground">{user.email}</p>
+                    {userRole && getRoleBadge(userRole)}
+                  </div>
                   <p className="text-primary font-semibold mt-1">
                     Số dư: {formatAmount(profile?.balance || 0)}đ
                   </p>

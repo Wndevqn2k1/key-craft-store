@@ -57,21 +57,16 @@ export function BackgroundMusic() {
   const musicUrl = getAudioUrl(settings?.music_url);
   const isEmbed = musicUrl?.includes('youtube.com/embed') || musicUrl?.includes('soundcloud.com/player') || musicUrl?.includes('mixcloud.com/widget') || false;
 
-  // Debug logging
-  useEffect(() => {
-    console.log('🎵 BackgroundMusic Debug:', {
-      rawMusicUrl: settings?.music_url,
-      processedMusicUrl: musicUrl,
-      isEmbed,
-      isPlaying,
-    });
-  }, [settings?.music_url, musicUrl, isEmbed, isPlaying]);
-
   // Toggle play/pause
   const togglePlay = async () => {
     try {
       if (isEmbed) {
         // Toggle embed iframe (YouTube/SoundCloud)
+        if (isPlaying) {
+          // Save mute timestamp for 1 hour when turning off
+          const muteUntil = Date.now() + (60 * 60 * 1000);
+          localStorage.setItem('musicMutedUntil', muteUntil.toString());
+        }
         setIsPlaying(!isPlaying);
         localStorage.setItem('backgroundMusicEnabled', (!isPlaying).toString());
       } else if (audioRef.current && musicUrl) {
@@ -79,6 +74,9 @@ export function BackgroundMusic() {
         if (isPlaying) {
           audioRef.current.pause();
           setIsPlaying(false);
+          // Save mute timestamp for 1 hour
+          const muteUntil = Date.now() + (60 * 60 * 1000); // 1 hour
+          localStorage.setItem('musicMutedUntil', muteUntil.toString());
           localStorage.setItem('backgroundMusicEnabled', 'false');
         } else {
           setIsLoading(true);
@@ -115,8 +113,11 @@ export function BackgroundMusic() {
   // Detect user interaction to enable autoplay
   useEffect(() => {
     const handleInteraction = () => {
-      if (!userInteracted && !hasAttemptedAutoplay.current && musicUrl) {
-        console.log('🎵 User interacted! Starting autoplay...');
+      // Check if music is muted
+      const mutedUntil = localStorage.getItem('musicMutedUntil');
+      const isMuted = mutedUntil && Date.now() < parseInt(mutedUntil);
+      
+      if (!userInteracted && !hasAttemptedAutoplay.current && musicUrl && !isMuted) {
         setUserInteracted(true);
         hasAttemptedAutoplay.current = true;
         
@@ -125,15 +126,12 @@ export function BackgroundMusic() {
           // For embeds, just set isPlaying to load iframe with autoplay param
           setIsPlaying(true);
           localStorage.setItem('backgroundMusicEnabled', 'true');
-          console.log('🎵 Embed autoplay started!');
         } else if (audioRef.current) {
           // Call play() IMMEDIATELY - browser will wait for audio to be ready
-          console.log('🎵 Calling audio.play()...');
           audioRef.current.play()
             .then(() => {
               setIsPlaying(true);
               localStorage.setItem('backgroundMusicEnabled', 'true');
-              console.log('🎵 Audio autoplay SUCCESS!');
             })
             .catch((error) => {
               console.error('🎵 Autoplay prevented:', error.message);

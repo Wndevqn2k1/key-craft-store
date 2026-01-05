@@ -1,5 +1,5 @@
 // Custom database types until auto-generated types are updated
-export type AppRole = 'admin' | 'user';
+export type AppRole = 'admin' | 'user' | 'reseller';
 export type OrderStatus = 'pending' | 'paid' | 'completed' | 'cancelled';
 export type KeyStatus = 'available' | 'sold' | 'expired';
 
@@ -41,6 +41,7 @@ export interface PriceTier {
   duration: string;
   duration_label: string;
   price: number;
+  reseller_price: number | null;
   original_price: number | null;
   is_popular: boolean;
   created_at: string;

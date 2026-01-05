@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useIsReseller } from '@/hooks/useUserRole';
 import { ProductWithTiers, PriceTier } from '@/types/database';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -22,7 +23,8 @@ import {
   Shield,
   Zap,
   Clock,
-  CreditCard
+  CreditCard,
+  Tag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -38,6 +40,7 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { toast } = useToast();
+  const isReseller = useIsReseller();
   const [product, setProduct] = useState<ProductWithTiers | null>(null);
   const [selectedTier, setSelectedTier] = useState<PriceTier | null>(null);
   const [keyStock, setKeyStock] = useState<Record<string, number>>({});
@@ -47,7 +50,7 @@ const ProductDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // Image Lightbox hook
-  const { isOpen, currentIndex, openLightbox, closeLightbox } = useImageLightbox();
+  const { isOpen, currentIndex, openLightbox, closeLightbox} = useImageLightbox();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -101,21 +104,26 @@ const ProductDetail = () => {
           setSelectedTier(popularTier as PriceTier);
         }
 
-        // Fetch key stock counts
+        // Fetch key stock counts using secure function
         if (tiersData && tiersData.length > 0) {
           const tierIds = tiersData.map(t => t.id);
-          const { data: keysData, error: keysError } = await supabase
-            .from('product_keys')
-            .select('price_tier_id')
-            .in('price_tier_id', tierIds)
-            .eq('status', 'available');
+          
+          // Use secure RPC function instead of direct SELECT
+          // This prevents unauthorized access to key_value
+          const { data: stockData, error: stockError } = await supabase
+            .rpc('get_available_keys_count', {
+              p_product_id: productData.id,
+              p_price_tier_ids: tierIds
+            });
 
-          if (!keysError && keysData) {
+          if (!stockError && stockData) {
             const stockMap: Record<string, number> = {};
-            tierIds.forEach(tierId => {
-              stockMap[tierId] = keysData.filter(k => k.price_tier_id === tierId).length;
+            stockData.forEach((item: any) => {
+              stockMap[item.price_tier_id] = Number(item.available_count);
             });
             setKeyStock(stockMap);
+          } else if (stockError) {
+            console.error('Error fetching stock:', stockError);
           }
         }
       } catch (error) {
@@ -389,12 +397,18 @@ const ProductDetail = () => {
                                       Phổ biến
                                     </Badge>
                                   )}
+                                  {isReseller && tier.reseller_price && (
+                                    <div className="flex items-center gap-1">
+                                      <Tag className="w-3 h-3 text-green-600" />
+                                      <span className="text-xs font-medium text-green-600">Giá Reseller</span>
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="flex items-center gap-2 text-sm">
                                   <span className="text-primary font-bold">
-                                    {formatPrice(tier.price)}
+                                    {formatPrice(isReseller && tier.reseller_price ? tier.reseller_price : tier.price)}
                                   </span>
-                                  {tier.original_price && tier.original_price > tier.price && (
+                                  {tier.original_price && tier.original_price > (isReseller && tier.reseller_price ? tier.reseller_price : tier.price) && (
                                     <span className="text-muted-foreground line-through">
                                       {formatPrice(tier.original_price)}
                                     </span>

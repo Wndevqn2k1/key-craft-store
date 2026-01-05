@@ -34,7 +34,7 @@ export const initGA = () => {
     send_page_view: false // We'll manually send page views
   });
   
-  console.log('Google Analytics initialized');
+
 };
 
 // Track page view

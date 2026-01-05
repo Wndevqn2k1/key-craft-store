@@ -76,21 +76,35 @@ const OrderSuccess = () => {
 
         setOrder(orderData);
 
-        // Fetch order items with product and key info
+        // Fetch order items
         const { data: itemsData, error: itemsError } = await supabase
           .from('order_items')
-          .select(`
-            id,
-            quantity,
-            unit_price,
-            product:products(name, image),
-            price_tier:price_tiers(duration_label),
-            product_key:product_keys(key_value)
-          `)
+          .select('id, quantity, unit_price, product_id, price_tier_id, key_id')
           .eq('order_id', orderId);
 
         if (itemsError) throw itemsError;
-        setOrderItems(itemsData as unknown as OrderItem[]);
+
+        // Fetch related data for each item
+        const itemsWithDetails = await Promise.all(
+          (itemsData || []).map(async (item) => {
+            const [productRes, tierRes, keyRes] = await Promise.all([
+              supabase.from('products').select('name, image').eq('id', item.product_id).single(),
+              supabase.from('price_tiers').select('duration_label').eq('id', item.price_tier_id).single(),
+              item.key_id ? supabase.from('product_keys').select('key_value').eq('id', item.key_id).single() : Promise.resolve({ data: null }),
+            ]);
+
+            return {
+              id: item.id,
+              quantity: item.quantity,
+              unit_price: item.unit_price,
+              product: productRes.data || { name: 'Sản phẩm', image: null },
+              price_tier: tierRes.data || { duration_label: '' },
+              product_key: keyRes.data,
+            };
+          })
+        );
+
+        setOrderItems(itemsWithDetails as OrderItem[]);
       } catch (error: any) {
         toast({ title: 'Lỗi', description: error.message, variant: 'destructive' });
       } finally {

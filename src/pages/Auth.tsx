@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ const passwordSchema = z.string().min(6, 'Mật khẩu phải có ít nhất 6 k
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { signIn, signUp, user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +32,20 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
+    // Check if coming from email confirmation
+    const confirmed = searchParams.get('confirmed');
+    if (confirmed === 'true') {
+      toast({
+        title: 'Xác nhận email thành công! 🎉',
+        description: 'Tài khoản của bạn đã được kích hoạt. Vui lòng đăng nhập để tiếp tục.',
+        duration: 5000,
+      });
+      // Remove query param
+      navigate('/auth', { replace: true });
+    }
+  }, [searchParams, toast, navigate]);
+
+  useEffect(() => {
     if (user && !authLoading) {
       navigate('/');
     }
@@ -38,15 +53,50 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate empty fields
+    if (!loginEmail.trim()) {
+      toast({
+        title: 'Thiếu thông tin',
+        description: 'Vui lòng nhập địa chỉ email',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!loginPassword.trim()) {
+      toast({
+        title: 'Thiếu thông tin',
+        description: 'Vui lòng nhập mật khẩu',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsLoading(true);
 
+    // Validate email format
     try {
       emailSchema.parse(loginEmail);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        toast({
+          title: 'Email không hợp lệ',
+          description: 'Vui lòng nhập địa chỉ email đúng định dạng (ví dụ: example@email.com)',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    // Validate password length
+    try {
       passwordSchema.parse(loginPassword);
     } catch (err) {
       if (err instanceof z.ZodError) {
         toast({
-          title: 'Lỗi xác thực',
+          title: 'Mật khẩu không hợp lệ',
           description: err.errors[0].message,
           variant: 'destructive',
         });
@@ -58,14 +108,31 @@ const Auth = () => {
     const { error } = await signIn(loginEmail, loginPassword);
 
     if (error) {
+      let title = 'Đăng nhập thất bại';
       let message = 'Đã xảy ra lỗi khi đăng nhập';
-      if (error.message.includes('Invalid login credentials')) {
-        message = 'Email hoặc mật khẩu không đúng';
+      
+      // Handle specific error cases
+      if (error.message.includes('Invalid login credentials') || 
+          error.message.includes('invalid_credentials') ||
+          error.message.includes('Invalid')) {
+        title = 'Thông tin đăng nhập không đúng';
+        message = 'Email hoặc mật khẩu không đúng. Vui lòng kiểm tra lại thông tin và thử lại.';
       } else if (error.message.includes('Email not confirmed')) {
-        message = 'Vui lòng xác nhận email trước khi đăng nhập';
+        title = 'Email chưa được xác nhận';
+        message = 'Vui lòng kiểm tra hộp thư email của bạn và xác nhận tài khoản trước khi đăng nhập.';
+      } else if (error.message.includes('User not found')) {
+        title = 'Tài khoản không tồn tại';
+        message = 'Email này chưa được đăng ký. Vui lòng đăng ký tài khoản mới.';
+      } else if (error.message.includes('Too many requests')) {
+        title = 'Quá nhiều lần thử';
+        message = 'Bạn đã thử đăng nhập quá nhiều lần. Vui lòng chờ một chút rồi thử lại.';
+      } else if (error.message.includes('Network')) {
+        title = 'Lỗi kết nối';
+        message = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối internet và thử lại.';
       }
+      
       toast({
-        title: 'Đăng nhập thất bại',
+        title,
         description: message,
         variant: 'destructive',
       });
@@ -82,16 +149,45 @@ const Auth = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate empty fields
+    if (!registerEmail.trim()) {
+      toast({
+        title: 'Thiếu thông tin',
+        description: 'Vui lòng nhập địa chỉ email',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!registerPassword.trim()) {
+      toast({
+        title: 'Thiếu thông tin',
+        description: 'Vui lòng nhập mật khẩu',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!confirmPassword.trim()) {
+      toast({
+        title: 'Thiếu thông tin',
+        description: 'Vui lòng xác nhận mật khẩu',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsLoading(true);
 
+    // Validate email format
     try {
       emailSchema.parse(registerEmail);
-      passwordSchema.parse(registerPassword);
     } catch (err) {
       if (err instanceof z.ZodError) {
         toast({
-          title: 'Lỗi xác thực',
-          description: err.errors[0].message,
+          title: 'Email không hợp lệ',
+          description: 'Vui lòng nhập địa chỉ email đúng định dạng (ví dụ: example@email.com)',
           variant: 'destructive',
         });
         setIsLoading(false);
@@ -99,32 +195,93 @@ const Auth = () => {
       }
     }
 
+    // Validate password length
+    try {
+      passwordSchema.parse(registerPassword);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        toast({
+          title: 'Mật khẩu không đủ mạnh',
+          description: 'Mật khẩu phải có ít nhất 6 ký tự. Khuyến nghị sử dụng chữ hoa, chữ thường và số.',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    // Validate password match
     if (registerPassword !== confirmPassword) {
       toast({
-        title: 'Lỗi',
-        description: 'Mật khẩu xác nhận không khớp',
+        title: 'Mật khẩu không khớp',
+        description: 'Mật khẩu xác nhận không giống với mật khẩu đã nhập. Vui lòng kiểm tra lại.',
         variant: 'destructive',
       });
       setIsLoading(false);
       return;
     }
 
+    // Validate full name (optional but show warning if empty)
+    if (!registerFullName.trim()) {
+      toast({
+        title: 'Khuyến nghị',
+        description: 'Bạn chưa nhập họ tên. Bạn có thể cập nhật sau trong trang hồ sơ.',
+        variant: 'default',
+      });
+    }
+
+    // Validate phone number format (optional)
+    if (registerPhone.trim()) {
+      const phoneRegex = /^[0-9]{10,11}$/;
+      if (!phoneRegex.test(registerPhone.replace(/\s/g, ''))) {
+        toast({
+          title: 'Số điện thoại không hợp lệ',
+          description: 'Số điện thoại phải có 10-11 chữ số (ví dụ: 0912345678)',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
+
     const { error } = await signUp(registerEmail, registerPassword, registerFullName, registerPhone);
 
     if (error) {
+      let title = 'Đăng ký thất bại';
       let message = 'Đã xảy ra lỗi khi đăng ký';
-      if (error.message.includes('User already registered')) {
-        message = 'Email này đã được đăng ký';
+      
+      // Handle specific error cases
+      if (error.message.includes('User already registered') || 
+          error.message.includes('already been registered') ||
+          error.message.includes('duplicate')) {
+        title = 'Email đã được sử dụng';
+        message = 'Email này đã được đăng ký trước đó. Vui lòng đăng nhập hoặc sử dụng email khác.';
+      } else if (error.message.includes('Password should be at least')) {
+        title = 'Mật khẩu không hợp lệ';
+        message = 'Mật khẩu phải có ít nhất 6 ký tự.';
+      } else if (error.message.includes('Invalid email')) {
+        title = 'Email không hợp lệ';
+        message = 'Định dạng email không đúng. Vui lòng kiểm tra lại.';
+      } else if (error.message.includes('Too many requests')) {
+        title = 'Quá nhiều lần thử';
+        message = 'Bạn đã thử đăng ký quá nhiều lần. Vui lòng chờ một chút rồi thử lại.';
+      } else if (error.message.includes('Network')) {
+        title = 'Lỗi kết nối';
+        message = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối internet và thử lại.';
+      } else if (error.message.includes('rate limit')) {
+        title = 'Vượt quá giới hạn';
+        message = 'Hệ thống đang bận. Vui lòng thử lại sau vài phút.';
       }
+      
       toast({
-        title: 'Đăng ký thất bại',
+        title,
         description: message,
         variant: 'destructive',
       });
     } else {
       toast({
-        title: 'Đăng ký thành công',
-        description: 'Tài khoản của bạn đã được tạo!',
+        title: 'Đăng ký thành công! 🎉',
+        description: 'Tài khoản của bạn đã được tạo. Chào mừng đến với GOODTEAM!',
       });
       navigate('/');
     }

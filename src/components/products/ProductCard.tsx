@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Star, ShoppingCart, Eye } from "lucide-react";
+import { Star, ShoppingCart, Eye, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Product } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
+import { useIsReseller } from "@/hooks/useUserRole";
 
 interface ProductCardProps {
   product: Product;
@@ -13,9 +14,13 @@ interface ProductCardProps {
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { addToCart } = useCart();
+  const isReseller = useIsReseller();
   
   const lowestPrice = product.price_tiers?.length 
-    ? Math.min(...product.price_tiers.map((t) => t.price))
+    ? Math.min(...product.price_tiers.map((t) => {
+        const price = isReseller && t.reseller_price != null ? t.reseller_price : t.price;
+        return price;
+      }))
     : 0;
   const popularTier = product.price_tiers?.find((t) => t.is_popular) || product.price_tiers?.[0];
 
@@ -144,6 +149,12 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         {/* Price with Animation */}
         <div className="flex items-end justify-between">
           <div className="overflow-hidden">
+            {isReseller && (
+              <div className="flex items-center gap-1 mb-1">
+                <Tag className="w-3 h-3 text-green-600" />
+                <span className="text-xs font-medium text-green-600">Giá Reseller</span>
+              </div>
+            )}
             <p className="text-xs text-muted-foreground">Từ</p>
             <motion.p
               whileHover={{ scale: 1.05 }}

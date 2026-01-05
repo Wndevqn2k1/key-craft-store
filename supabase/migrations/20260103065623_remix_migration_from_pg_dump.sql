@@ -36,33 +36,45 @@ SET row_security = off;
 -- Name: app_role; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE public.app_role AS ENUM (
+DO $$ BEGIN
+  CREATE TYPE public.app_role AS ENUM (
     'admin',
     'user'
-);
+  );
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
 
 --
 -- Name: key_status; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE public.key_status AS ENUM (
+DO $$ BEGIN
+  CREATE TYPE public.key_status AS ENUM (
     'available',
     'sold',
     'expired'
-);
+  );
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
 
 --
 -- Name: order_status; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE public.order_status AS ENUM (
+DO $$ BEGIN
+  CREATE TYPE public.order_status AS ENUM (
     'pending',
     'paid',
     'completed',
     'cancelled'
-);
+  );
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
 
 --

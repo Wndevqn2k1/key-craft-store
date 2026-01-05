@@ -72,9 +72,7 @@ const Deposit = () => {
     setIsChecking(true);
     try {
       const response = await supabase.functions.invoke('check-vcb-transactions');
-      console.log('VCB check response:', response);
-      console.log('VCB check data:', response.data);
-      console.log('VCB check error:', response.error);
+
       
       if (response.error) {
         toast({

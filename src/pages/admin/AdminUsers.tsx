@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Shield, ShieldOff, Pencil, Trash2, MoreHorizontal, Wallet } from 'lucide-react';
+import { Shield, ShieldOff, Pencil, Trash2, MoreHorizontal, Wallet, UserCog, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,18 +79,26 @@ const AdminUsers = () => {
   });
 
   const toggleAdminMutation = useMutation({
-    mutationFn: async ({ userId, isAdmin }: { userId: string; isAdmin: boolean }) => {
-      if (isAdmin) {
+    mutationFn: async ({ userId, newRole }: { userId: string; newRole: 'admin' | 'user' | 'reseller' }) => {
+      // Check if user_role exists first
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('user_id', userId)
+        .single();
+
+      if (existingRole) {
+        // Update existing role
         const { error } = await supabase
           .from('user_roles')
-          .delete()
-          .eq('user_id', userId)
-          .eq('role', 'admin');
+          .update({ role: newRole })
+          .eq('user_id', userId);
         if (error) throw error;
       } else {
+        // Insert new role
         const { error } = await supabase
           .from('user_roles')
-          .insert({ user_id: userId, role: 'admin' });
+          .insert({ user_id: userId, role: newRole });
         if (error) throw error;
       }
     },
@@ -168,6 +183,30 @@ const AdminUsers = () => {
     return user.user_roles?.some((role: any) => role.role === 'admin');
   };
 
+  const getUserRole = (user: any): 'admin' | 'reseller' | 'user' => {
+    if (user.user_roles?.some((role: any) => role.role === 'admin')) return 'admin';
+    if (user.user_roles?.some((role: any) => role.role === 'reseller')) return 'reseller';
+    return 'user';
+  };
+
+  const getRoleLabel = (role: string) => {
+    const labels: Record<string, string> = {
+      admin: 'Quản trị viên',
+      reseller: 'Đại lý',
+      user: 'Người dùng',
+    };
+    return labels[role] || role;
+  };
+
+  const getRoleBadgeVariant = (role: string): 'default' | 'destructive' | 'secondary' => {
+    const variants: Record<string, 'default' | 'destructive' | 'secondary'> = {
+      admin: 'destructive',
+      reseller: 'default',
+      user: 'secondary',
+    };
+    return variants[role] || 'secondary';
+  };
+
   const handleEdit = (user: any) => {
     setSelectedUser(user);
     setEditForm({ full_name: user.full_name || '', phone: user.phone || '' });
@@ -216,7 +255,7 @@ const AdminUsers = () => {
                 </TableRow>
               ) : (
                 users?.map((user) => {
-                  const isAdmin = isUserAdmin(user);
+                  const userRole = getUserRole(user);
                   return (
                     <TableRow key={user.id}>
                       <TableCell>
@@ -234,9 +273,44 @@ const AdminUsers = () => {
                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(user.balance) || 0)}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={isAdmin ? 'default' : 'secondary'}>
-                          {isAdmin ? 'Admin' : 'User'}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={getRoleBadgeVariant(userRole)} className="min-w-[120px] justify-center">
+                            {getRoleLabel(userRole)}
+                          </Badge>
+                          <Select
+                            value={userRole}
+                            onValueChange={(newRole) => {
+                              toggleAdminMutation.mutate({ 
+                                userId: user.id, 
+                                newRole: newRole as 'admin' | 'user' | 'reseller' 
+                              });
+                            }}
+                          >
+                            <SelectTrigger className="w-[140px] h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="user">
+                                <div className="flex items-center gap-2">
+                                  <Users className="w-4 h-4" />
+                                  <span>User</span>
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="reseller">
+                                <div className="flex items-center gap-2">
+                                  <UserCog className="w-4 h-4" />
+                                  <span>Reseller</span>
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="admin">
+                                <div className="flex items-center gap-2">
+                                  <Shield className="w-4 h-4" />
+                                  <span>Admin</span>
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </TableCell>
                       <TableCell>{new Date(user.created_at!).toLocaleDateString('vi-VN')}</TableCell>
                       <TableCell className="text-right">
@@ -254,21 +328,6 @@ const AdminUsers = () => {
                             <DropdownMenuItem onClick={() => handleTopUp(user)}>
                               <Wallet className="h-4 w-4 mr-2" />
                               Nạp tiền
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => toggleAdminMutation.mutate({ userId: user.id, isAdmin })}
-                            >
-                              {isAdmin ? (
-                                <>
-                                  <ShieldOff className="h-4 w-4 mr-2" />
-                                  Xoá quyền Admin
-                                </>
-                              ) : (
-                                <>
-                                  <Shield className="h-4 w-4 mr-2" />
-                                  Cấp quyền Admin
-                                </>
-                              )}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
