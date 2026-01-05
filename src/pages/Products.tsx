@@ -7,6 +7,8 @@ import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/products/ProductCard";
 import { Input } from "@/components/ui/input";
 import { useProducts } from "@/hooks/useProducts";
+import { SEO } from "@/components/SEO";
+import { getCategorySEO } from "@/lib/seo-keywords";
 
 const Products = () => {
   const { data: products, isLoading } = useProducts();
@@ -20,6 +22,10 @@ const Products = () => {
       setSearchQuery(urlSearch);
     }
   }, [searchParams]);
+
+  // Get category from URL for SEO
+  const categoryParam = searchParams.get("category");
+  const categorySEO = categoryParam ? getCategorySEO(categoryParam) : null;
 
   // Group products by category
   const groupedProducts = products?.reduce((acc, product) => {
@@ -46,13 +52,26 @@ const Products = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Sản phẩm - GOODTEAM</title>
-        <meta
-          name="description"
-          content="Khám phá các sản phẩm key bản quyền phần mềm, game, tài khoản premium chính hãng với giá tốt nhất."
+      {categorySEO ? (
+        <SEO 
+          title={categorySEO.title}
+          description={categorySEO.description}
+          keywords={categorySEO.keywords}
+          type="website"
         />
-      </Helmet>
+      ) : (
+        <Helmet>
+          <title>Sản phẩm - GOODTEAM</title>
+          <meta
+            name="description"
+            content="Khám phá các sản phẩm key bản quyền phần mềm, game, hackmap, tool, cheat, mod chính hãng với giá tốt nhất. Giao key tự động 24/7."
+          />
+          <meta
+            name="keywords"
+            content="key bản quyền, hackmap lol, tool game, cheat game, mod game, key windows, key office, phần mềm bản quyền"
+          />
+        </Helmet>
+      )}
 
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -62,10 +81,10 @@ const Products = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/10" />
             <div className="container mx-auto px-4 relative z-10">
               <h1 className="font-display text-4xl md:text-5xl font-bold text-center mb-4">
-                <span className="text-gradient">Tất cả sản phẩm</span>
+                <span className="text-gradient">{categorySEO?.title || 'Tất cả sản phẩm'}</span>
               </h1>
               <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-8">
-                Khám phá bộ sưu tập key bản quyền phần mềm, game và tài khoản premium với giá tốt nhất
+                {categorySEO?.description || 'Khám phá key bản quyền phần mềm, game, hackmap, tool, cheat, mod với giá tốt nhất. Giao key tự động 24/7, bảo hành uy tín.'}
               </p>
 
               {/* Search Bar */}

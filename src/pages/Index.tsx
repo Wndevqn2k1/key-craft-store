@@ -9,10 +9,14 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>GOODTEAM - Key Bản Quyền Phần Mềm & Game Chính Hãng</title>
+        <title>GOODTEAM - Key Bản Quyền Phần Mềm, Game, Hackmap & Tool Chính Hãng</title>
         <meta
           name="description"
-          content="Cung cấp key bản quyền phần mềm, game, tài khoản premium chính hãng với giá tốt nhất. Giao key tự động 24/7, bảo hành uy tín."
+          content="Cung cấp key bản quyền phần mềm, game, hackmap LMHT, tool game, cheat, mod chính hãng giá rẻ. Giao key tự động 24/7, bảo hành uy tín, hỗ trợ nhiệt tình."
+        />
+        <meta
+          name="keywords"
+          content="key bản quyền, hackmap lol, hackmap lmht, tool game, cheat game, mod game, key windows, key office, phần mềm bản quyền, game tool, key game"
         />
       </Helmet>
 
