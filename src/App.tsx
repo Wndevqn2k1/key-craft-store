@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { BackgroundMusic } from "@/components/BackgroundMusic";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Products from "./pages/Products";
@@ -61,6 +62,9 @@ const App = () => (
                 <Route path="/admin/banners" element={<AdminBanners />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              
+              {/* Background Music - Global */}
+              <BackgroundMusic />
             </BrowserRouter>
           </TooltipProvider>
         </CartProvider>

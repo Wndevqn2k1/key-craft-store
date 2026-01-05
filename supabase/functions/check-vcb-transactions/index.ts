@@ -98,7 +98,11 @@ serve(async (req) => {
     // Check each pending deposit against transactions
     for (const deposit of pendingDeposits || []) {
       const transferContent = deposit.transfer_content?.toUpperCase() || "";
+      console.log(`\n🔍 Checking deposit ${deposit.id}:`);
+      console.log(`   Amount: ${deposit.amount}`);
+      console.log(`   Transfer content: "${transferContent}"`);
 
+      let foundMatch = false;
       for (const transaction of creditTransactions) {
         // Skip if already processed this transaction
         if (processedTransactions.includes(transaction.Reference)) continue;
@@ -109,14 +113,22 @@ serve(async (req) => {
         // Parse transaction amount (remove commas)
         const transactionAmount = parseInt(transaction.Amount.replace(/,/g, ""));
 
+        console.log(`   📝 Transaction ${transaction.Reference}:`);
+        console.log(`      Amount: ${transactionAmount} (vs ${deposit.amount})`);
+        console.log(`      Description: "${description}"`);
+        console.log(`      Remark: "${remark}"`);
+
         // Check if transfer content matches in description or remark
         const contentMatches = description.includes(transferContent) || remark.includes(transferContent);
 
         // Check if amount matches
         const amountMatches = transactionAmount === deposit.amount;
+        
+        console.log(`      Content match: ${contentMatches}, Amount match: ${amountMatches}`);
 
         if (contentMatches && amountMatches) {
-          console.log(`Match found! Deposit ${deposit.id} matches transaction ${transaction.Reference}`);
+          console.log(`✅ MATCH FOUND! Deposit ${deposit.id} matches transaction ${transaction.Reference}`);
+          foundMatch = true;
 
           // Update deposit status to approved
           const { error: updateError } = await supabase
@@ -140,12 +152,41 @@ serve(async (req) => {
             .eq("id", deposit.user_id)
             .single();
 
-          if (!profileError && profile) {
-            const newBalance = (profile.balance || 0) + deposit.amount;
-            await supabase.from("profiles").update({ balance: newBalance }).eq("id", deposit.user_id);
-
-            console.log(`Updated balance for user ${deposit.user_id}: ${profile.balance} -> ${newBalance}`);
+          if (profileError || !profile) {
+            console.error(`Error fetching profile for user ${deposit.user_id}:`, profileError);
+            // Rollback deposit status if profile update fails
+            await supabase
+              .from("deposits")
+              .update({ 
+                status: "pending",
+                admin_note: null,
+                approved_at: null 
+              })
+              .eq("id", deposit.id);
+            continue;
           }
+
+          const newBalance = (profile.balance || 0) + deposit.amount;
+          const { error: balanceError } = await supabase
+            .from("profiles")
+            .update({ balance: newBalance })
+            .eq("id", deposit.user_id);
+
+          if (balanceError) {
+            console.error(`Error updating balance for user ${deposit.user_id}:`, balanceError);
+            // Rollback deposit status if balance update fails
+            await supabase
+              .from("deposits")
+              .update({ 
+                status: "pending",
+                admin_note: null,
+                approved_at: null 
+              })
+              .eq("id", deposit.id);
+            continue;
+          }
+
+          console.log(`Updated balance for user ${deposit.user_id}: ${profile.balance} -> ${newBalance}`);
 
           matchedDeposits.push({
             depositId: deposit.id,
@@ -156,6 +197,10 @@ serve(async (req) => {
           processedTransactions.push(transaction.Reference);
           break; // Move to next deposit
         }
+      }
+      
+      if (!foundMatch) {
+        console.log(`❌ No match found for deposit ${deposit.id}`);
       }
     }
 

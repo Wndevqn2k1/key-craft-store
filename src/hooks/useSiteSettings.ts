@@ -15,6 +15,7 @@ export interface SiteSettings {
   bank_holder: string;
   bank_branch: string;
   bank_bin: string; // Mã BIN ngân hàng cho VietQR
+  music_url: string; // URL nhạc nền (YouTube hoặc file audio)
 }
 
 const defaultSettings: SiteSettings = {
@@ -31,6 +32,7 @@ const defaultSettings: SiteSettings = {
   bank_holder: 'NGUYEN VAN A',
   bank_branch: 'Chi nhánh Hà Nội',
   bank_bin: '970436', // Mã BIN Vietcombank mặc định
+  music_url: '', // Mặc định không có nhạc nền
 };
 
 export function useSiteSettings() {

@@ -98,11 +98,11 @@ export function ProductGrid() {
           </div>
         ) : (
           <div className="mx-auto max-w-6xl">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 justify-items-center">
+            <div className="flex flex-wrap gap-6 justify-center">
               {filteredProducts.map((product, index) => (
                 <div
                   key={product.id}
-                  className="animate-fade-in w-full max-w-sm"
+                  className="animate-fade-in w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <ProductCard product={product} />

@@ -39,6 +39,7 @@ const AdminSettings = () => {
     bank_holder: '',
     bank_branch: '',
     bank_bin: '970436',
+    music_url: '',
   });
   
   const [isUploading, setIsUploading] = useState(false);
@@ -79,6 +80,50 @@ const AdminSettings = () => {
       toast({ title: 'Lỗi', description: error.message, variant: 'destructive' });
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleMusicUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/mp4'];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|ogg|m4a)$/i)) {
+      toast({ title: 'Lỗi', description: 'Chỉ hỗ trợ file MP3, WAV, OGG, M4A', variant: 'destructive' });
+      return;
+    }
+
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: 'Lỗi', description: 'File không được vượt quá 10MB', variant: 'destructive' });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `background-music-${Date.now()}.${fileExt}`;
+      const filePath = `music/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      handleInputChange('music_url', publicUrl);
+      toast({ title: 'Thành công', description: 'Đã upload nhạc nền' });
+    } catch (error: any) {
+      toast({ title: 'Lỗi', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+      // Reset input để có thể upload lại cùng file
+      e.target.value = '';
     }
   };
 
@@ -136,6 +181,10 @@ const AdminSettings = () => {
             <TabsTrigger value="bank">
               <Building className="mr-2 h-4 w-4" />
               Ngân hàng
+            </TabsTrigger>
+            <TabsTrigger value="music">
+              <Settings className="mr-2 h-4 w-4" />
+              Nhạc nền
             </TabsTrigger>
           </TabsList>
 
@@ -356,6 +405,70 @@ const AdminSettings = () => {
                   <p className="text-xs text-muted-foreground">
                     Tra cứu mã BIN tại: <a href="https://www.vietqr.io/danh-sach-ngan-hang" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">vietqr.io/danh-sach-ngan-hang</a>
                   </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="music">
+            <Card>
+              <CardHeader>
+                <CardTitle>Nhạc nền</CardTitle>
+                <CardDescription>Cấu hình nhạc nền cho website</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Upload file MP3 */}
+                <div className="space-y-2">
+                  <Label htmlFor="music_file">Upload file nhạc (MP3, WAV, OGG)</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="music_file"
+                      type="file"
+                      accept="audio/mp3,audio/wav,audio/ogg,audio/mpeg,audio/mp4"
+                      onChange={handleMusicUpload}
+                      disabled={isUploading}
+                      className="flex-1"
+                    />
+                    {isUploading && <Loader2 className="w-5 h-5 animate-spin" />}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Upload file nhạc trực tiếp (tự động lưu vào Supabase Storage)
+                  </p>
+                </div>
+
+                {/* Hoặc nhập URL */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Hoặc dán link
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="music_url">Link nhạc nền</Label>
+                  <Input
+                    id="music_url"
+                    value={formData.music_url}
+                    onChange={(e) => handleInputChange('music_url', e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=... hoặc https://example.com/music.mp3"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Hỗ trợ: YouTube, SoundCloud, Mixcloud hoặc file audio trực tiếp
+                  </p>
+                </div>
+
+                <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                  <p className="text-sm font-medium">💡 Hướng dẫn:</p>
+                  <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                    <li><strong>Upload file:</strong> Chọn file MP3/WAV từ máy tính (tốt nhất cho autoplay)</li>
+                    <li><strong>YouTube/SoundCloud:</strong> Dán link (cần click nút phát thủ công do browser chặn)</li>
+                    <li>Để trống nếu không muốn phát nhạc nền</li>
+                    <li>Người dùng có thể bật/tắt nhạc bằng nút ở góc dưới phải</li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>

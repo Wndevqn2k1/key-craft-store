@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, Menu, Search, User, X, LogOut, Wallet, Info, Settings } from "lucide-react";
+import { Menu, Search, User, X, LogOut, Wallet, Info, Settings, ShoppingCart } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,31 +8,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-
-interface Product {
-  id: string;
-  name: string;
-  image: string | null;
-  category: string;
-}
+import { MiniCart } from "@/components/cart/MiniCart";
+import { SearchWithAutocomplete } from "@/components/search/SearchWithAutocomplete";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [balance, setBalance] = useState(0);
-  const [suggestions, setSuggestions] = useState<Product[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const mobileSearchRef = useRef<HTMLDivElement>(null);
   const { user, isAdmin, signOut } = useAuth();
-  const { cartCount } = useCart();
   const navigate = useNavigate();
   const { data: settings } = useSiteSettings();
 
@@ -54,67 +41,10 @@ export function Header() {
     fetchBalance();
   }, [user]);
 
-  // Fetch suggestions when search query changes
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (searchQuery.trim().length < 1) {
-        setSuggestions([]);
-        setShowSuggestions(false);
-        return;
-      }
-
-      const { data } = await supabase
-        .from('products')
-        .select('id, name, image, category')
-        .ilike('name', `%${searchQuery.trim()}%`)
-        .limit(6);
-
-      if (data) {
-        setSuggestions(data);
-        setShowSuggestions(true);
-      }
-    };
-
-    const debounce = setTimeout(fetchSuggestions, 200);
-    return () => clearTimeout(debounce);
-  }, [searchQuery]);
-
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchRef.current && !searchRef.current.contains(event.target as Node) &&
-        mobileSearchRef.current && !mobileSearchRef.current.contains(event.target as Node)
-      ) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery("");
-      setIsSearchOpen(false);
-      setShowSuggestions(false);
-    }
-  };
-
-  const handleSelectProduct = (productId: string) => {
-    navigate(`/product/${productId}`);
-    setSearchQuery("");
-    setShowSuggestions(false);
-    setIsSearchOpen(false);
-  };
-
   return (
-    <header className="sticky top-0 z-50 glass border-b border-border/50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 md:h-20">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container px-4 md:px-6">
+        <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
             {settings?.logo_url ? (
@@ -155,44 +85,8 @@ export function Header() {
           </nav>
 
           {/* Search Bar - Desktop (expanded) */}
-          <div ref={searchRef} className="hidden md:flex items-center flex-1 max-w-2xl mx-6 relative">
-            <form onSubmit={handleSearch} className="w-full">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Tìm kiếm sản phẩm..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                  className="pl-10 bg-secondary/50 border-border/50 focus:border-primary"
-                />
-              </div>
-            </form>
-
-            {/* Desktop Suggestions Dropdown */}
-            {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-[100] overflow-hidden">
-                {suggestions.map((product) => (
-                  <button
-                    key={product.id}
-                    onClick={() => handleSelectProduct(product.id)}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors text-left"
-                  >
-                    {product.image ? (
-                      <img src={product.image} alt={product.name} className="w-10 h-10 rounded object-cover" />
-                    ) : (
-                      <div className="w-10 h-10 rounded bg-secondary flex items-center justify-center">
-                        <Search className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
-                      <p className="text-xs text-muted-foreground">{product.category}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="hidden md:flex items-center flex-1 max-w-2xl mx-6">
+            <SearchWithAutocomplete />
           </div>
 
           {/* Actions */}
@@ -204,7 +98,7 @@ export function Header() {
               className="md:hidden"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
             >
-              <Search className="w-5 h-5" />
+              {isSearchOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
             </Button>
 
             {/* Balance Display */}
@@ -217,17 +111,8 @@ export function Header() {
               </Link>
             )}
 
-            {/* Cart */}
-            <Link to="/checkout">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="w-5 h-5" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-accent-foreground text-xs font-bold rounded-full flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            {/* Cart - Now using MiniCart */}
+            <MiniCart />
 
             {/* Desktop User Actions - Hidden on mobile */}
             <div className="hidden md:flex items-center gap-2">
@@ -286,44 +171,8 @@ export function Header() {
 
         {/* Mobile Search */}
         {isSearchOpen && (
-          <div ref={mobileSearchRef} className="md:hidden pb-4 animate-fade-in relative">
-            <form onSubmit={handleSearch}>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Tìm kiếm sản phẩm..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                  className="pl-10 bg-secondary/50 border-border/50"
-                />
-              </div>
-            </form>
-
-            {/* Mobile Suggestions Dropdown */}
-            {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-[100] overflow-hidden">
-                {suggestions.map((product) => (
-                  <button
-                    key={product.id}
-                    onClick={() => handleSelectProduct(product.id)}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors text-left"
-                  >
-                    {product.image ? (
-                      <img src={product.image} alt={product.name} className="w-10 h-10 rounded object-cover" />
-                    ) : (
-                      <div className="w-10 h-10 rounded bg-secondary flex items-center justify-center">
-                        <Search className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
-                      <p className="text-xs text-muted-foreground">{product.category}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="md:hidden pb-4 animate-fade-in">
+            <SearchWithAutocomplete />
           </div>
         )}
 

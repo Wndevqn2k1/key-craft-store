@@ -72,7 +72,18 @@ const Deposit = () => {
     setIsChecking(true);
     try {
       const response = await supabase.functions.invoke('check-vcb-transactions');
-      console.log('VCB check response:', response.data);
+      console.log('VCB check response:', response);
+      console.log('VCB check data:', response.data);
+      console.log('VCB check error:', response.error);
+      
+      if (response.error) {
+        toast({
+          title: "Lỗi kiểm tra giao dịch!",
+          description: `${response.error.message || 'Không thể kết nối đến API'}`,
+          variant: "destructive"
+        });
+        return;
+      }
       
       if (response.data?.matchedDeposits > 0) {
         toast({
@@ -81,6 +92,7 @@ const Deposit = () => {
         });
         queryClient.invalidateQueries({ queryKey: ['balance'] });
         queryClient.invalidateQueries({ queryKey: ['pending-deposit'] });
+        queryClient.invalidateQueries({ queryKey: ['profile'] });
         setHasSubmitted(false);
         
         // Stop polling
@@ -88,11 +100,22 @@ const Deposit = () => {
           clearInterval(pollingIntervalRef.current);
           pollingIntervalRef.current = null;
         }
+      } else {
+        // Show info about check result
+        toast({
+          title: "Chưa tìm thấy giao dịch",
+          description: `Đã kiểm tra ${response.data?.totalTransactions || 0} giao dịch. Vui lòng đợi thêm hoặc kiểm tra lại thông tin chuyển khoản.`,
+        });
       }
       
       setCheckCount(prev => prev + 1);
     } catch (error) {
       console.error('Error checking VCB transactions:', error);
+      toast({
+        title: "Lỗi!",
+        description: "Không thể kiểm tra giao dịch. Vui lòng thử lại.",
+        variant: "destructive"
+      });
     } finally {
       setIsChecking(false);
     }

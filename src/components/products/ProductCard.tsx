@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Star, ShoppingCart, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,9 +8,10 @@ import { useCart } from "@/contexts/CartContext";
 
 interface ProductCardProps {
   product: Product;
+  index?: number;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { addToCart } = useCart();
   
   const lowestPrice = product.price_tiers?.length 
@@ -42,45 +44,62 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group relative bg-card rounded-xl border border-border overflow-hidden card-hover">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.1 }}
+      whileHover={{ y: -8 }}
+      className="group relative bg-card rounded-xl border border-border overflow-hidden card-hover shadow-lg hover:shadow-2xl transition-all duration-300"
+    >
       {/* Badge */}
       {product.badge && (
-        <div className="absolute top-3 left-3 z-10">
+        <motion.div
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ delay: index * 0.1 + 0.2, type: "spring" }}
+          className="absolute top-3 left-3 z-10"
+        >
           <Badge
             className={`font-display font-semibold text-xs px-3 py-1 ${badgeClass}`}
           >
             {product.badge}
           </Badge>
-        </div>
+        </motion.div>
       )}
 
       {/* Image */}
-      <div className="relative h-48 overflow-hidden">
-        <img
+      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-accent/10 to-primary/10">
+        <motion.img
+          whileHover={{ scale: 1.15 }}
+          transition={{ duration: 0.6 }}
           src={product.image || '/placeholder.svg'}
           alt={product.name}
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent" />
         
-        {/* Quick Actions */}
-        <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        {/* Quick Actions - Hiện khi hover */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileHover={{ opacity: 1, scale: 1 }}
+          className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 backdrop-blur-sm"
+        >
           <Link to={`/product/${product.id}`}>
-            <Button size="icon" className="rounded-full bg-background/80 backdrop-blur-sm hover:bg-primary hover:text-primary-foreground">
+            <Button size="icon" className="rounded-full bg-background/90 hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110">
               <Eye className="w-4 h-4" />
             </Button>
           </Link>
           <Button 
             size="icon" 
-            className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+            className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 hover:scale-110"
             onClick={handleAddToCart}
             disabled={!popularTier}
           >
             <ShoppingCart className="w-4 h-4" />
           </Button>
-        </div>
+        </motion.div>
       </div>
 
       {/* Content */}
@@ -116,24 +135,22 @@ export function ProductCard({ product }: ProductCardProps) {
                     : "bg-secondary text-secondary-foreground"
                 }`}
               >
-                {tier.duration_label}
+                {tier.name}
               </span>
             ))}
-            {product.price_tiers.length > 3 && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">
-                +{product.price_tiers.length - 3}
-              </span>
-            )}
           </div>
         )}
 
-        {/* Price */}
+        {/* Price with Animation */}
         <div className="flex items-end justify-between">
-          <div>
+          <div className="overflow-hidden">
             <p className="text-xs text-muted-foreground">Từ</p>
-            <p className="font-display font-bold text-xl text-primary">
+            <motion.p
+              whileHover={{ scale: 1.05 }}
+              className="font-display font-bold text-xl text-primary"
+            >
               {lowestPrice > 0 ? formatPrice(lowestPrice) : 'Liên hệ'}
-            </p>
+            </motion.p>
           </div>
           <Link to={`/product/${product.id}`}>
             <Button size="sm" className="glow-primary">
@@ -142,6 +159,6 @@ export function ProductCard({ product }: ProductCardProps) {
           </Link>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

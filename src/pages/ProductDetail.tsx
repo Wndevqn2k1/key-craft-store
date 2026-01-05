@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ImageLightbox, useImageLightbox } from '@/components/ui/image-lightbox';
 import { 
   Star, 
   ShoppingCart, 
@@ -44,6 +45,9 @@ const ProductDetail = () => {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Image Lightbox hook
+  const { isOpen, currentIndex, openLightbox, closeLightbox } = useImageLightbox();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -222,17 +226,29 @@ const ProductDetail = () => {
           <span className="text-foreground">{product.name}</span>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 xl:gap-12">
           {/* Product Images */}
           <div className="space-y-4">
             {/* Main Image */}
             <div className="relative">
-              <div className="aspect-video rounded-xl overflow-hidden bg-card border border-border">
+              <div 
+                className="aspect-video rounded-xl overflow-hidden bg-card border border-border cursor-pointer group"
+                onClick={() => openLightbox(currentImageIndex)}
+              >
                 <img
                   src={allImages[currentImageIndex]?.image_url || '/placeholder.svg'}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="bg-white/90 rounded-full p-3">
+                      <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
               </div>
               {product.badge && (
                 <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
@@ -292,7 +308,7 @@ const ProductDetail = () => {
           <div className="space-y-6">
             <div>
               <Badge variant="outline" className="mb-2">{product.category}</Badge>
-              <h1 className="text-3xl font-bold text-foreground mb-2">{product.name}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">{product.name}</h1>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
@@ -350,12 +366,12 @@ const ProductDetail = () => {
                         )}
                         onClick={() => setSelectedTier(tier as PriceTier)}
                       >
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                        <CardContent className="p-3 sm:p-4">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                               <div
                                 className={cn(
-                                  'w-4 h-4 rounded-full border-2 flex items-center justify-center',
+                                  'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
                                   isSelected ? 'border-primary' : 'border-muted-foreground'
                                 )}
                               >
@@ -363,9 +379,9 @@ const ProductDetail = () => {
                                   <div className="w-2 h-2 rounded-full bg-primary" />
                                 )}
                               </div>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium text-foreground">
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-medium text-foreground text-sm sm:text-base">
                                     {tier.duration_label}
                                   </span>
                                   {tier.is_popular && (
@@ -386,12 +402,12 @@ const ProductDetail = () => {
                                 </div>
                               </div>
                             </div>
-                            <div className="text-right">
+                            <div className="text-right shrink-0">
                               <div className={cn(
-                                'text-sm font-medium',
+                                'text-xs sm:text-sm font-medium whitespace-nowrap',
                                 stock > 0 ? 'text-green-500' : 'text-red-500'
                               )}>
-                                {stock > 0 ? `Còn ${stock} key` : 'Hết hàng'}
+                                {stock > 0 ? `${stock} key` : 'Hết hàng'}
                               </div>
                             </div>
                           </div>
@@ -404,11 +420,11 @@ const ProductDetail = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 size="lg"
                 variant="outline"
-                className="flex-1"
+                className="flex-1 w-full sm:w-auto"
                 disabled={!selectedTier || (keyStock[selectedTier?.id || ''] || 0) === 0 || isAddingToCart}
                 onClick={handleAddToCart}
               >
@@ -417,7 +433,7 @@ const ProductDetail = () => {
               </Button>
               <Button
                 size="lg"
-                className="flex-1"
+                className="flex-1 w-full sm:w-auto"
                 disabled={!selectedTier || (keyStock[selectedTier?.id || ''] || 0) === 0}
                 onClick={handleBuyNow}
               >
@@ -427,18 +443,18 @@ const ProductDetail = () => {
             </div>
 
             {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 border-t border-border">
               <div className="flex flex-col items-center text-center">
-                <Shield className="h-6 w-6 text-primary mb-1" />
-                <span className="text-xs text-muted-foreground">Key chính hãng</span>
+                <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary mb-1" />
+                <span className="text-[10px] sm:text-xs text-muted-foreground">Key chính hãng</span>
               </div>
               <div className="flex flex-col items-center text-center">
-                <Zap className="h-6 w-6 text-primary mb-1" />
-                <span className="text-xs text-muted-foreground">Giao ngay</span>
+                <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-primary mb-1" />
+                <span className="text-[10px] sm:text-xs text-muted-foreground">Giao ngay</span>
               </div>
               <div className="flex flex-col items-center text-center">
-                <Clock className="h-6 w-6 text-primary mb-1" />
-                <span className="text-xs text-muted-foreground">Hỗ trợ 24/7</span>
+                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary mb-1" />
+                <span className="text-[10px] sm:text-xs text-muted-foreground">Hỗ trợ 24/7</span>
               </div>
             </div>
           </div>
@@ -446,7 +462,7 @@ const ProductDetail = () => {
 
         {/* Product Description Section */}
         {product.description && (
-          <div className="mt-12 border-t border-border pt-8">
+          <div className="mt-8 sm:mt-12 border-t border-border pt-6 sm:pt-8">
             <h2 className="text-2xl font-bold text-foreground mb-4">Mô Tả Sản Phẩm</h2>
             <div className="prose prose-sm max-w-none text-muted-foreground">
               <p className="whitespace-pre-line">{product.description}</p>
@@ -454,6 +470,15 @@ const ProductDetail = () => {
           </div>
         )}
       </main>
+      
+      {/* Image Lightbox */}
+      <ImageLightbox
+        images={allImages.map(img => img.image_url)}
+        currentIndex={currentIndex}
+        isOpen={isOpen}
+        onClose={closeLightbox}
+      />
+      
       <Footer />
     </div>
   );
