@@ -9,14 +9,14 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>GOODTEAM - Key Bản Quyền Phần Mềm, Game, Hackmap & Tool Chính Hãng</title>
+        <title>Mua Key Bản Quyền, Hackmap LMHT, Liên Quân, AOV Giá Rẻ - GOODTEAM</title>
         <meta
           name="description"
-          content="Cung cấp key bản quyền phần mềm, game, hackmap LMHT, tool game, cheat, mod chính hãng giá rẻ. Giao key tự động 24/7, bảo hành uy tín, hỗ trợ nhiệt tình."
+          content="🔥 Bán key hackmap LMHT, Liên Quân Mobile, AOV Đài Loan/Thái Lan giá rẻ nhất ⚡ Giao key tự động 24/7 ✅ Hỗ trợ: Hackmap LOL Skin, Tool Liên Quân Auto, Cheat AOV Tướng/Skin, Mod Garena, Key Windows/Office bản quyền. Thanh toán dễ dàng, bảo hành uy tín!"
         />
         <meta
           name="keywords"
-          content="key bản quyền, hackmap lol, hackmap lmht, tool game, cheat game, mod game, key windows, key office, phần mềm bản quyền, game tool, key game"
+          content="mua key, hackmap lmht, hackmap lol, hackmap liên quân, hackmap aov, aov đài loan, aov thái lan, tool liên quân mobile, cheat aov, mod liên quân, tool garena, auto farm liên quân, cheat game mobile, hackmap skin aov, tool auto aov, key windows, key office, mua hackmap, tool hack lol"
         />
       </Helmet>
 

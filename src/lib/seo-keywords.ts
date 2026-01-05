@@ -1,7 +1,7 @@
 // SEO Keywords và Meta Descriptions cho các loại sản phẩm
 
 export const SEO_KEYWORDS = {
-  // Game Tools & Hacks
+  // Game Tools & Hacks - PC Games
   HACKMAP: [
     'hackmap lmht',
     'hackmap liên minh',
@@ -11,6 +11,26 @@ export const SEO_KEYWORDS = {
     'hackmap skin miễn phí',
     'hackmap lol việt nam',
     'key hackmap',
+  ].join(', '),
+
+  // Mobile Game Hacks - Liên Quân & AOV
+  HACKMAP_LIEN_QUAN: [
+    'hackmap liên quân',
+    'hackmap liên quân mobile',
+    'hackmap aov',
+    'hackmap aov việt nam',
+    'aov đài loan',
+    'aov thái lan',
+    'aov singapore',
+    'tool liên quân',
+    'tool liên quân mobile',
+    'tool aov',
+    'cheat liên quân',
+    'cheat aov',
+    'mod liên quân',
+    'mod aov',
+    'hackmap garena',
+    'tool garena aov',
   ].join(', '),
   
   GAME_TOOL: [
@@ -22,6 +42,8 @@ export const SEO_KEYWORDS = {
     'tool farm game',
     'game utility',
     'game enhancement tool',
+    'tool auto liên quân',
+    'tool auto farm aov',
   ].join(', '),
   
   CHEAT_MOD: [
@@ -59,7 +81,9 @@ export const SEO_KEYWORDS = {
 export const SEO_DESCRIPTIONS = {
   HACKMAP: 'Cung cấp key hackmap LMHT, tool hack League of Legends chính hãng. Hackmap skin, tướng miễn phí, script an toàn. Giao key tự động 24/7, hỗ trợ update liên tục.',
   
-  GAME_TOOL: 'Bán key tool game, phần mềm hỗ trợ chơi game chuyên nghiệp. Tool auto farm, macro, enhancement tools với giá rẻ. Giao key tức thì, bảo hành uy tín.',
+  HACKMAP_LIEN_QUAN: 'Bán key hackmap Liên Quân Mobile, AOV Đài Loan, Thái Lan, Singapore giá rẻ. Tool auto farm, cheat skin tướng, mod liên quân không bị phát hiện. Giao key tức thì, hỗ trợ tận tình 24/7.',
+  
+  GAME_TOOL: 'Bán key tool game, phần mềm hỗ trợ chơi game chuyên nghiệp. Tool auto farm, macro, enhancement tools với giá rẻ. Tool Liên Quân, AOV, LMHT. Giao key tức thì, bảo hành uy tín.',
   
   CHEAT_MOD: 'Key cheat game, mod menu, trainer bản quyền giá tốt. Game modifier, cheat engine, save editor an toàn. Hỗ trợ nhiều game phổ biến, update thường xuyên.',
   
@@ -74,6 +98,11 @@ export const CATEGORY_SEO = {
     title: 'Hackmap LMHT - Tool Hack League of Legends',
     description: SEO_DESCRIPTIONS.HACKMAP,
     keywords: SEO_KEYWORDS.HACKMAP,
+  },
+  'hackmap-lien-quan': {
+    title: 'Hackmap Liên Quân - Tool AOV Đài Loan, Thái Lan',
+    description: SEO_DESCRIPTIONS.HACKMAP_LIEN_QUAN,
+    keywords: SEO_KEYWORDS.HACKMAP_LIEN_QUAN,
   },
   'game-tool': {
     title: 'Tool Game - Phần Mềm Hỗ Trợ Chơi Game',
@@ -108,23 +137,31 @@ export const getCategorySEO = (categorySlug: string) => {
 
 // Popular search terms cho suggestions
 export const POPULAR_SEARCHES = [
+  'hackmap lmht',
   'hackmap lol',
+  'hackmap liên quân',
+  'hackmap aov',
+  'aov đài loan',
+  'aov thái lan',
+  'tool liên quân',
   'tool game',
   'key windows',
   'key office',
   'cheat game',
   'mod game',
+  'cheat aov',
+  'tool auto liên quân',
   'key phần mềm',
   'tool hack',
   'game trainer',
-  'hackmap lmht',
 ];
 
 // Related keywords cho internal linking
 export const RELATED_KEYWORDS = {
   hackmap: ['tool game', 'cheat game', 'mod game', 'script game'],
-  tool: ['hackmap', 'auto farm', 'game utility', 'macro game'],
-  cheat: ['trainer', 'mod menu', 'save editor', 'hackmap'],
+  'hackmap-lien-quan': ['tool liên quân', 'cheat aov', 'mod liên quân', 'aov đài loan', 'aov thái lan'],
+  tool: ['hackmap', 'auto farm', 'game utility', 'macro game', 'tool liên quân', 'tool aov'],
+  cheat: ['trainer', 'mod menu', 'save editor', 'hackmap', 'cheat aov', 'cheat liên quân'],
   windows: ['office', 'phần mềm', 'activation', 'license'],
   office: ['windows', 'microsoft', 'productivity', 'word excel'],
 };
