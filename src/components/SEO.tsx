@@ -30,7 +30,7 @@ export function SEO({
   const defaultTitle = settings?.site_title || 'GOODTEAM - Key Bản Quyền Phần Mềm & Game Chính Hãng';
   const defaultDescription = 'Cung cấp key bản quyền phần mềm, game, tài khoản premium chính hãng với giá tốt nhất. Giao key tự động 24/7, bảo hành uy tín.';
   const defaultImage = settings?.logo_url || '/logo.png';
-  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://goodteam.vn';
+  const siteUrl = 'https://muahackvip.com';
   
   const fullTitle = title ? `${title} - ${siteName}` : defaultTitle;
   const fullDescription = description || defaultDescription;
