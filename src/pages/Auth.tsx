@@ -9,11 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Gamepad2, Mail, Lock, User, Loader2, Phone } from 'lucide-react';
 import { z } from 'zod';
-
-const emailSchema = z.string().email('Email không hợp lệ');
-const passwordSchema = z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự');
+import { useTranslation } from 'react-i18next';
 
 const Auth = () => {
+  const { t } = useTranslation();
+  const emailSchema = z.string().email(t('auth.invalidEmail'));
+  const passwordSchema = z.string().min(6, t('auth.passwordMinLength'));
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { signIn, signUp, user, isLoading: authLoading } = useAuth();

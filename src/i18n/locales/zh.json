@@ -36,7 +36,27 @@
     "noAccount": "还没有账号？",
     "hasAccount": "已有账号？",
     "signUp": "立即注册",
-    "signIn": "立即登录"
+    "signIn": "立即登录",
+    "loginSuccess": "登录成功",
+    "registerSuccess": "注册成功",
+    "loginError": "登录失败",
+    "registerError": "注册失败",
+    "invalidEmail": "邮箱无效",
+    "passwordMinLength": "密码至少需要6个字符",
+    "missingInfo": "缺少信息",
+    "enterEmail": "请输入邮箱地址",
+    "enterPassword": "请输入密码",
+    "enterFullName": "请输入姓名",
+    "enterPhone": "请输入电话号码",
+    "passwordMismatch": "密码不匹配",
+    "invalidEmailFormat": "请输入有效的邮箱地址 (例如: example@email.com)",
+    "invalidPassword": "密码无效",
+    "emailConfirmed": "邮箱验证成功! 🎉",
+    "emailConfirmedDesc": "您的账号已激活。请登录继续。",
+    "loginDescription": "登录访问您的账号",
+    "registerDescription": "创建新账号开始购物",
+    "emailInUse": "邮箱已被使用",
+    "phoneInUse": "电话号码已被使用"
   },
   "product": {
     "title": "产品",
@@ -95,11 +115,22 @@
   "review": {
     "title": "评价",
     "writeReview": "写评价",
+    "editReview": "编辑评价",
     "yourRating": "您的评分",
     "yourReview": "您的评价",
     "submit": "提交评价",
+    "updateReview": "更新评价",
     "helpful": "有帮助",
     "notHelpful": "没有帮助",
-    "verified": "已验证购买"
+    "verified": "已验证购买",
+    "noReviews": "还没有评价",
+    "loginToReview": "请登录后写评价",
+    "selectRating": "请选择评分",
+    "commentPlaceholder": "分享您对这个产品的体验...",
+    "submitSuccess": "评价提交成功！",
+    "updateSuccess": "评价已更新！",
+    "reviews": "评价",
+    "star": "星",
+    "anonymous": "匿名用户"
   }
 }

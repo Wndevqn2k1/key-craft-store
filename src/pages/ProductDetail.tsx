@@ -12,7 +12,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ImageLightbox, useImageLightbox } from '@/components/ui/image-lightbox';
+import { ReviewForm } from '@/components/products/ReviewForm';
+import { ReviewList } from '@/components/products/ReviewList';
+import { useTranslation } from 'react-i18next';
 import { 
   Star, 
   ShoppingCart, 
@@ -35,6 +39,7 @@ interface ProductImage {
 }
 
 const ProductDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -474,15 +479,30 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Product Description Section */}
-        {product.description && (
-          <div className="mt-8 sm:mt-12 border-t border-border pt-6 sm:pt-8">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Mô Tả Sản Phẩm</h2>
-            <div className="prose prose-sm max-w-none text-muted-foreground">
-              <p className="whitespace-pre-line">{product.description}</p>
-            </div>
-          </div>
-        )}
+        {/* Product Description & Reviews Section */}
+        <Tabs defaultValue="description" className="mt-8 sm:mt-12">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="description">{t('product.description')}</TabsTrigger>
+            <TabsTrigger value="reviews">{t('review.title')}</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="description" className="mt-6">
+            {product.description && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="prose prose-sm max-w-none text-muted-foreground">
+                    <p className="whitespace-pre-line">{product.description}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="reviews" className="mt-6 space-y-6">
+            <ReviewForm productId={product.id} />
+            <ReviewList productId={product.id} />
+          </TabsContent>
+        </Tabs>
       </main>
       
       {/* Image Lightbox */}

@@ -36,7 +36,27 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "signUp": "Sign up",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "loginSuccess": "Login successful",
+    "registerSuccess": "Registration successful",
+    "loginError": "Login failed",
+    "registerError": "Registration failed",
+    "invalidEmail": "Invalid email",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "missingInfo": "Missing information",
+    "enterEmail": "Please enter email address",
+    "enterPassword": "Please enter password",
+    "enterFullName": "Please enter full name",
+    "enterPhone": "Please enter phone number",
+    "passwordMismatch": "Passwords do not match",
+    "invalidEmailFormat": "Please enter a valid email address (e.g., example@email.com)",
+    "invalidPassword": "Invalid password",
+    "emailConfirmed": "Email confirmed successfully! 🎉",
+    "emailConfirmedDesc": "Your account has been activated. Please login to continue.",
+    "loginDescription": "Login to access your account",
+    "registerDescription": "Create a new account to start shopping",
+    "emailInUse": "Email already in use",
+    "phoneInUse": "Phone number already in use"
   },
   "product": {
     "title": "Products",
@@ -95,11 +115,22 @@
   "review": {
     "title": "Reviews",
     "writeReview": "Write a Review",
+    "editReview": "Edit Review",
     "yourRating": "Your Rating",
     "yourReview": "Your Review",
     "submit": "Submit Review",
+    "updateReview": "Update Review",
     "helpful": "Helpful",
     "notHelpful": "Not Helpful",
-    "verified": "Verified Purchase"
+    "verified": "Verified Purchase",
+    "noReviews": "No reviews yet",
+    "loginToReview": "Please login to write a review",
+    "selectRating": "Please select a rating",
+    "commentPlaceholder": "Share your experience with this product...",
+    "submitSuccess": "Review submitted successfully!",
+    "updateSuccess": "Review updated!",
+    "reviews": "reviews",
+    "star": "star",
+    "anonymous": "Anonymous User"
   }
 }
