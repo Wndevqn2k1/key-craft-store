@@ -51,7 +51,7 @@ const AdminUsers = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [topUpDialogOpen, setTopUpDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ full_name: '', phone: '' });
+  const [editForm, setEditForm] = useState({ full_name: '', phone: '', balance: '' });
   const [topUpAmount, setTopUpAmount] = useState('');
 
   const { data: users, isLoading } = useQuery({
@@ -113,10 +113,23 @@ const AdminUsers = () => {
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: async ({ userId, data }: { userId: string; data: { full_name: string; phone: string } }) => {
+    mutationFn: async ({ userId, data }: { userId: string; data: { full_name: string; phone: string; balance?: string } }) => {
+      const updateData: any = { 
+        full_name: data.full_name, 
+        phone: data.phone 
+      };
+      
+      // Only update balance if provided and valid
+      if (data.balance !== undefined && data.balance !== '') {
+        const balanceNum = parseFloat(data.balance);
+        if (!isNaN(balanceNum) && balanceNum >= 0) {
+          updateData.balance = balanceNum;
+        }
+      }
+      
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: data.full_name, phone: data.phone })
+        .update(updateData)
         .eq('id', userId);
       if (error) throw error;
     },
@@ -210,7 +223,11 @@ const AdminUsers = () => {
 
   const handleEdit = (user: any) => {
     setSelectedUser(user);
-    setEditForm({ full_name: user.full_name || '', phone: user.phone || '' });
+    setEditForm({ 
+      full_name: user.full_name || '', 
+      phone: user.phone || '',
+      balance: user.balance?.toString() || '0'
+    });
     setEditDialogOpen(true);
   };
 
@@ -375,6 +392,21 @@ const AdminUsers = () => {
                 value={editForm.phone}
                 onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="balance">Số dư (VND)</Label>
+              <Input
+                id="balance"
+                type="number"
+                min="0"
+                step="1000"
+                value={editForm.balance}
+                onChange={(e) => setEditForm({ ...editForm, balance: e.target.value })}
+                placeholder="Nhập số dư mới"
+              />
+              <p className="text-xs text-muted-foreground">
+                Số dư hiện tại: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(selectedUser?.balance) || 0)}
+              </p>
             </div>
           </div>
           <DialogFooter>
