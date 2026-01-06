@@ -18,7 +18,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   
   const lowestPrice = product.price_tiers?.length 
     ? Math.min(...product.price_tiers.map((t) => {
-        const price = isReseller && t.reseller_price != null ? t.reseller_price : t.price;
+        const price = isReseller && t.reseller_price ? t.reseller_price : t.price;
         return price;
       }))
     : 0;
@@ -140,7 +140,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                     : "bg-secondary text-secondary-foreground"
                 }`}
               >
-                {tier.name}
+                {tier.duration_label}
               </span>
             ))}
           </div>

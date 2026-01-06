@@ -13,8 +13,8 @@ export interface Product {
   in_stock: boolean | null;
   features: string[] | null;
   price_tiers: PriceTier[];
-  display_order: number;
-  is_featured: boolean;
+  display_order?: number | null;
+  is_featured?: boolean | null;
   created_at: string;
 }
 
@@ -23,6 +23,7 @@ export interface PriceTier {
   duration: string;
   duration_label: string;
   price: number;
+  reseller_price?: number | null;
   original_price: number | null;
   is_popular: boolean | null;
 }
@@ -35,11 +36,10 @@ export const useProducts = () => {
         .from('products')
         .select('*, price_tiers(*)')
         .eq('in_stock', true)
-        .order('display_order', { ascending: false })
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as Product[];
+      return (data || []) as unknown as Product[];
     },
   });
 };
@@ -55,7 +55,7 @@ export const useProduct = (id: string) => {
         .maybeSingle();
       
       if (error) throw error;
-      return data as Product | null;
+      return data as unknown as Product | null;
     },
     enabled: !!id,
   });

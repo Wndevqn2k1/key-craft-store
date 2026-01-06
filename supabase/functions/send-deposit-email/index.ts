@@ -225,7 +225,7 @@ serve(async (req) => {
         recipient_email: userEmail,
         subject: status === 'approved' ? 'Nạp tiền thành công' : 'Yêu cầu nạp tiền bị từ chối',
         status: 'failed',
-        error_message: error.message,
+        error_message: error instanceof Error ? error.message : 'Unknown error',
         metadata: { deposit_id: depositId },
       })
     } catch (logError) {
@@ -235,7 +235,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error' 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

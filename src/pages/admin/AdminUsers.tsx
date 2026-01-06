@@ -79,7 +79,7 @@ const AdminUsers = () => {
   });
 
   const toggleAdminMutation = useMutation({
-    mutationFn: async ({ userId, newRole }: { userId: string; newRole: 'admin' | 'user' | 'reseller' }) => {
+    mutationFn: async ({ userId, newRole }: { userId: string; newRole: 'admin' | 'user' }) => {
       // Check if user_role exists first
       const { data: existingRole } = await supabase
         .from('user_roles')
@@ -98,7 +98,7 @@ const AdminUsers = () => {
         // Insert new role
         const { error } = await supabase
           .from('user_roles')
-          .insert({ user_id: userId, role: newRole });
+          .insert([{ user_id: userId, role: newRole }]);
         if (error) throw error;
       }
     },
@@ -183,16 +183,14 @@ const AdminUsers = () => {
     return user.user_roles?.some((role: any) => role.role === 'admin');
   };
 
-  const getUserRole = (user: any): 'admin' | 'reseller' | 'user' => {
+  const getUserRole = (user: any): 'admin' | 'user' => {
     if (user.user_roles?.some((role: any) => role.role === 'admin')) return 'admin';
-    if (user.user_roles?.some((role: any) => role.role === 'reseller')) return 'reseller';
     return 'user';
   };
 
   const getRoleLabel = (role: string) => {
     const labels: Record<string, string> = {
       admin: 'Quản trị viên',
-      reseller: 'Đại lý',
       user: 'Người dùng',
     };
     return labels[role] || role;
@@ -201,7 +199,6 @@ const AdminUsers = () => {
   const getRoleBadgeVariant = (role: string): 'default' | 'destructive' | 'secondary' => {
     const variants: Record<string, 'default' | 'destructive' | 'secondary'> = {
       admin: 'destructive',
-      reseller: 'default',
       user: 'secondary',
     };
     return variants[role] || 'secondary';
@@ -282,7 +279,7 @@ const AdminUsers = () => {
                             onValueChange={(newRole) => {
                               toggleAdminMutation.mutate({ 
                                 userId: user.id, 
-                                newRole: newRole as 'admin' | 'user' | 'reseller' 
+                                newRole: newRole as 'admin' | 'user' 
                               });
                             }}
                           >
@@ -294,12 +291,6 @@ const AdminUsers = () => {
                                 <div className="flex items-center gap-2">
                                   <Users className="w-4 h-4" />
                                   <span>User</span>
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="reseller">
-                                <div className="flex items-center gap-2">
-                                  <UserCog className="w-4 h-4" />
-                                  <span>Reseller</span>
                                 </div>
                               </SelectItem>
                               <SelectItem value="admin">
