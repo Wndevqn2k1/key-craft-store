@@ -253,9 +253,15 @@ const Auth = () => {
       // Handle specific error cases
       if (error.message.includes('User already registered') || 
           error.message.includes('already been registered') ||
-          error.message.includes('duplicate')) {
+          error.message.includes('duplicate') ||
+          error.message.includes('profiles_email_unique') ||
+          error.message.includes('unique constraint')) {
         title = 'Email đã được sử dụng';
         message = 'Email này đã được đăng ký trước đó. Vui lòng đăng nhập hoặc sử dụng email khác.';
+      } else if (error.message.includes('profiles_phone_unique') || 
+                 error.message.includes('phone') && error.message.includes('unique')) {
+        title = 'Số điện thoại đã được sử dụng';
+        message = 'Số điện thoại này đã được đăng ký bởi tài khoản khác. Vui lòng sử dụng số điện thoại khác.';
       } else if (error.message.includes('Password should be at least')) {
         title = 'Mật khẩu không hợp lệ';
         message = 'Mật khẩu phải có ít nhất 6 ký tự.';

@@ -138,8 +138,19 @@ const AdminUsers = () => {
       toast({ title: 'Thành công', description: 'Đã cập nhật thông tin người dùng' });
       setEditDialogOpen(false);
     },
-    onError: (error) => {
-      toast({ title: 'Lỗi', description: error.message, variant: 'destructive' });
+    onError: (error: any) => {
+      let message = error.message;
+      
+      // Handle unique constraint violations
+      if (error.message.includes('profiles_email_unique') || 
+          (error.message.includes('email') && error.message.includes('unique'))) {
+        message = 'Email này đã được sử dụng bởi tài khoản khác. Vui lòng sử dụng email khác.';
+      } else if (error.message.includes('profiles_phone_unique') || 
+                 (error.message.includes('phone') && error.message.includes('unique'))) {
+        message = 'Số điện thoại này đã được sử dụng bởi tài khoản khác. Vui lòng sử dụng số điện thoại khác.';
+      }
+      
+      toast({ title: 'Lỗi', description: message, variant: 'destructive' });
     },
   });
 
