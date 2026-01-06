@@ -4,6 +4,7 @@ import { Search, TrendingUp, Clock, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { useProducts } from '@/hooks/useProducts';
+import { useTranslation } from 'react-i18next';
 
 // Popular searches - có thể lấy từ database sau
 const POPULAR_SEARCHES = [
@@ -18,6 +19,7 @@ const POPULAR_SEARCHES = [
 ];
 
 export function SearchWithAutocomplete() {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
@@ -72,7 +74,7 @@ export function SearchWithAutocomplete() {
         <Input
           ref={inputRef}
           type="text"
-          placeholder="Tìm kiếm sản phẩm..."
+          placeholder={t('search.placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
@@ -132,13 +134,13 @@ export function SearchWithAutocomplete() {
                 <div className="flex items-center justify-between px-3 py-2">
                   <div className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
                     <Clock className="w-3 h-3" />
-                    Tìm kiếm gần đây
+                    {t('search.recentSearches')}
                   </div>
                   <button
                     onClick={clearRecent}
                     className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    Xóa
+                    {t('common.delete')}
                   </button>
                 </div>
                 {recentSearches.map((search, idx) => (

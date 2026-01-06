@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Facebook, MessageCircle, Mail, Phone, MapPin, Shield, CreditCard, Clock } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useTranslation } from "react-i18next";
 
 export function Footer() {
+  const { t } = useTranslation();
   const { data: settings } = useSiteSettings();
 
   return (
@@ -177,7 +179,7 @@ export function Footer() {
       {/* Copyright */}
       <div className="border-t border-border py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} {settings?.site_name || 'KeyStore'}. Tất cả quyền được bảo lưu.</p>
+          <p>© {new Date().getFullYear()} {settings?.site_name || 'KeyStore'}. {t('footer.allRightsReserved')}</p>
         </div>
       </div>
     </footer>

@@ -206,5 +206,22 @@
     "reviews": "reviews",
     "star": "star",
     "anonymous": "Anonymous User"
+  },
+  "search": {
+    "placeholder": "Search products...",
+    "noResults": "No results found",
+    "searchResults": "Search Results",
+    "recentSearches": "Recent Searches"
+  },
+  "footer": {
+    "allRightsReserved": "All rights reserved.",
+    "secure": "Secure",
+    "secureDesc": "100% Safe",
+    "payment": "Payment",
+    "paymentDesc": "Multiple methods",
+    "support247": "24/7 Support",
+    "support247Desc": "Free consultation",
+    "fastDelivery": "Fast Delivery",
+    "fastDeliveryDesc": "Instant automatic"
   }
 }

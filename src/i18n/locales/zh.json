@@ -206,5 +206,22 @@
     "reviews": "评价",
     "star": "星",
     "anonymous": "匿名用户"
+  },
+  "search": {
+    "placeholder": "搜索产品...",
+    "noResults": "未找到结果",
+    "searchResults": "搜索结果",
+    "recentSearches": "最近搜索"
+  },
+  "footer": {
+    "allRightsReserved": "版权所有。",
+    "secure": "安全",
+    "secureDesc": "100%安全",
+    "payment": "支付",
+    "paymentDesc": "多种方式",
+    "support247": "24/7支持",
+    "support247Desc": "免费咨询",
+    "fastDelivery": "快速发货",
+    "fastDeliveryDesc": "即时自动"
   }
 }

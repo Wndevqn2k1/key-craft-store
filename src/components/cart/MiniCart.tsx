@@ -6,8 +6,10 @@ import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useTranslation } from 'react-i18next';
 
 export function MiniCart() {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const { cartItems, cartTotal, removeFromCart, isLoading } = useCart();
 
@@ -26,7 +28,7 @@ export function MiniCart() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 hover:bg-accent rounded-lg transition-colors"
-        aria-label="Giỏ hàng"
+        aria-label={t('nav.cart')}
       >
         <ShoppingCart className="w-5 h-5" />
         {itemCount > 0 && (
@@ -66,12 +68,12 @@ export function MiniCart() {
               {/* Header */}
               <div className="p-3 sm:p-4 border-b border-border flex items-center justify-between">
                 <h3 className="font-display font-semibold text-base sm:text-lg">
-                  Giỏ hàng ({itemCount})
+                  {t('cart.title')} ({itemCount})
                 </h3>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="p-1 hover:bg-accent rounded transition-colors"
-                  aria-label="Đóng"
+                  aria-label={t('common.close')}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -82,7 +84,7 @@ export function MiniCart() {
                 {isLoading ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
-                    Đang tải...
+                    {t('common.loading')}
                   </div>
                 ) : cartItems && cartItems.length > 0 ? (
                   cartItems.map((item) => (
@@ -123,7 +125,7 @@ export function MiniCart() {
                       <button
                         onClick={() => removeFromCart(item.id)}
                         className="p-1 sm:p-1.5 hover:bg-destructive/10 hover:text-destructive rounded transition-colors self-start shrink-0"
-                        aria-label="Xóa"
+                        aria-label={t('cart.remove')}
                       >
                         <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </button>
@@ -132,14 +134,14 @@ export function MiniCart() {
                 ) : (
                   <div className="text-center py-12 text-muted-foreground">
                     <ShoppingCart className="w-16 h-16 mx-auto mb-3 opacity-20" />
-                    <p>Giỏ hàng trống</p>
+                    <p>{t('cart.empty')}</p>
                     <Button
                       variant="link"
                       onClick={() => setIsOpen(false)}
                       asChild
                       className="mt-2"
                     >
-                      <Link to="/products">Xem sản phẩm</Link>
+                      <Link to="/products">{t('product.allProducts')}</Link>
                     </Button>
                   </div>
                 )}
@@ -149,7 +151,7 @@ export function MiniCart() {
               {cartItems && cartItems.length > 0 && (
                 <div className="p-3 sm:p-4 border-t border-border bg-background">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-medium text-sm sm:text-base">Tổng cộng:</span>
+                    <span className="font-medium text-sm sm:text-base">{t('cart.total')}:</span>
                     <span className="text-base sm:text-lg font-bold text-primary">
                       {formatPrice(cartTotal)}
                     </span>
@@ -161,7 +163,7 @@ export function MiniCart() {
                     onClick={() => setIsOpen(false)}
                   >
                     <Link to="/checkout" className="flex items-center justify-center gap-2">
-                      Thanh toán
+                      {t('cart.checkout')}
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </Button>

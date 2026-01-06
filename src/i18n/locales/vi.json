@@ -245,5 +245,16 @@
     "noResults": "Không tìm thấy kết quả",
     "searchResults": "Kết quả tìm kiếm",
     "recentSearches": "Tìm kiếm gần đây"
+  },
+  "footer": {
+    "allRightsReserved": "Tất cả quyền được bảo lưu.",
+    "secure": "Bảo mật",
+    "secureDesc": "100% An toàn",
+    "payment": "Thanh toán",
+    "paymentDesc": "Đa dạng phương thức",
+    "support247": "Hỗ trợ 24/7",
+    "support247Desc": "Tư vấn miễn phí",
+    "fastDelivery": "Giao hàng nhanh",
+    "fastDeliveryDesc": "Tự động tức thì"
   }
 }
