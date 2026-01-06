@@ -6,8 +6,10 @@ import { Loader2 } from "lucide-react";
 import { useProducts } from "@/hooks/useProducts";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 export function ProductGrid() {
+  const { t } = useTranslation();
   const { data: products, isLoading } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -70,11 +72,11 @@ export function ProductGrid() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            <span className="text-foreground">SẢN PHẨM</span>{" "}
-            <span className="text-primary text-shadow-glow">NỔI BẬT</span>
+            <span className="text-foreground">{t('home.featuredProducts')}</span>{" "}
+            <span className="text-primary text-shadow-glow">{t('home.featuredHighlight')}</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Key bản quyền chính hãng với giá tốt nhất. Giao key tự động 24/7, bảo hành uy tín.
+            {t('home.featuredDescription')}
           </p>
         </div>
 
@@ -85,7 +87,7 @@ export function ProductGrid() {
             onClick={() => setSelectedCategory(null)}
             className="font-medium"
           >
-            Tất cả
+            {t('home.allCategories')}
           </Button>
           {categories?.map((cat) => (
             <Button
@@ -105,7 +107,7 @@ export function ProductGrid() {
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-muted-foreground text-lg">Chưa có sản phẩm nào</p>
+            <p className="text-muted-foreground text-lg">{t('product.noProducts')}</p>
           </div>
         ) : (
           <div className="mx-auto max-w-6xl">
@@ -127,7 +129,7 @@ export function ProductGrid() {
           <div className="text-center mt-12">
             <Link to="/products">
               <Button variant="outline" size="lg" className="font-display hover:border-primary hover:text-primary">
-                Xem tất cả sản phẩm
+                {t('home.viewAllProducts')}
               </Button>
             </Link>
           </div>

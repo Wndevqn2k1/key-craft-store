@@ -22,7 +22,8 @@
     "admin": "管理",
     "login": "登录",
     "logout": "退出",
-    "balance": "余额"
+    "balance": "余额",
+    "deposit": "充值"
   },
   "auth": {
     "login": "登录",
@@ -58,8 +59,34 @@
     "emailInUse": "邮箱已被使用",
     "phoneInUse": "电话号码已被使用"
   },
+  "home": {
+    "featuredProducts": "精选",
+    "featuredHighlight": "产品",
+    "featuredDescription": "正版授权密钥，最优惠的价格。24/7自动发货，可靠保修。",
+    "allCategories": "全部",
+    "viewAllProducts": "查看所有产品",
+    "from": "从",
+    "viewDetails": "查看详情",
+    "resellerPrice": "经销商价格",
+    "contact": "联系"
+  },
+  "hero": {
+    "badge": "24/7自动发货密钥",
+    "title1": "正版授权",
+    "title2": "密钥",
+    "description": "提供软件密钥、游戏、高级账户，价格最优惠。快速激活，可靠保修，贴心支持。",
+    "exploreNow": "立即探索",
+    "depositNow": "充值",
+    "instantDelivery": "即时交付",
+    "instantDeliveryDesc": "付款后立即获取密钥",
+    "reliableWarranty": "可靠保修",
+    "reliableWarrantyDesc": "100%退款保证",
+    "bestPrice": "最优价格",
+    "bestPriceDesc": "比市场便宜20%"
+  },
   "product": {
     "title": "产品",
+    "allProducts": "所有产品",
     "price": "价格",
     "stock": "有货",
     "outOfStock": "缺货",
@@ -69,7 +96,11 @@
     "category": "类别",
     "reviews": "评价",
     "rating": "评分",
-    "quantity": "数量"
+    "quantity": "数量",
+    "selectTier": "选择套餐",
+    "productDetails": "产品详情",
+    "relatedProducts": "相关产品",
+    "noProducts": "暂无产品"
   },
   "cart": {
     "title": "购物车",
@@ -91,6 +122,49 @@
     "pending": "处理中",
     "completed": "已完成",
     "cancelled": "已取消"
+  },
+  "deposit": {
+    "title": "充值",
+    "currentBalance": "当前余额",
+    "amount": "充值金额",
+    "enterAmount": "输入金额",
+    "bankTransfer": "银行转账",
+    "bankInfo": "银行信息",
+    "accountNumber": "账号",
+    "accountName": "账户名",
+    "transferContent": "转账备注",
+    "uploadProof": "上传凭证",
+    "submitRequest": "提交请求",
+    "pendingApproval": "待审核",
+    "approved": "已批准",
+    "rejected": "已拒绝",
+    "pageTitle": "充值 - GOODTEAM",
+    "metaDescription": "通过银行转账、VNPay或MoMo充值到您的KeyStore账户。",
+    "loginRequired": "您需要登录才能充值",
+    "badge": "账户充值",
+    "heading": "账户充值",
+    "description": "选择合适的充值方式。确认后资金将添加到您的账户。",
+    "successTitle": "充值成功！",
+    "pendingDesc": "您的充值请求正在处理中。请按照提供的信息进行转账。",
+    "errorDesc": "无法创建充值请求。请重试。",
+    "viewHistory": "查看充值历史",
+    "waitingConfirmation": "等待交易确认...",
+    "autoCheckDesc": "系统将自动检查并在检测到您的交易时添加资金。",
+    "checkedTimes": "已检查{count}次",
+    "checking": "检查中...",
+    "checkNow": "立即检查",
+    "waitingConfirmationShort": "等待确认..."
+  },
+  "profile": {
+    "title": "个人资料",
+    "personalInfo": "个人信息",
+    "orderHistory": "订单历史",
+    "depositHistory": "充值历史",
+    "viewRequests": "查看您的充值请求",
+    "noDeposits": "还没有充值请求",
+    "depositNow": "立即充值",
+    "noOrders": "还没有订单",
+    "viewOrderDetails": "查看已购买的订单和密钥"
   },
   "admin": {
     "dashboard": "仪表板",

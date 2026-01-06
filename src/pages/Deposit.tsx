@@ -12,6 +12,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useDepositRealtime } from "@/hooks/useDepositRealtime";
+import { useTranslation } from "react-i18next";
 import { 
   Wallet, 
   CreditCard, 
@@ -30,6 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const PRESET_AMOUNTS = [50000, 100000, 200000, 500000, 1000000];
 
 const Deposit = () => {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -191,8 +193,8 @@ const Deposit = () => {
     },
     onError: () => {
       toast({
-        title: "Lỗi!",
-        description: "Không thể tạo yêu cầu nạp tiền. Vui lòng thử lại.",
+        title: t('common.error'),
+        description: t('deposit.errorDesc'),
         variant: "destructive",
       });
     },
@@ -202,19 +204,19 @@ const Deposit = () => {
     return (
       <>
         <Helmet>
-          <title>Nạp tiền - GOODTEAM</title>
+          <title>{t('deposit.pageTitle')}</title>
         </Helmet>
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1 flex items-center justify-center">
             <div className="text-center p-8">
               <Wallet className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h2 className="font-display text-2xl font-bold mb-2">Vui lòng đăng nhập</h2>
+              <h2 className="font-display text-2xl font-bold mb-2">{t('auth.loginDescription')}</h2>
               <p className="text-muted-foreground mb-4">
-                Bạn cần đăng nhập để nạp tiền vào tài khoản
+                {t('deposit.loginRequired')}
               </p>
               <Button onClick={() => navigate("/auth")} className="glow-primary">
-                Đăng nhập ngay
+                {t('auth.signIn')}
               </Button>
             </div>
           </main>
@@ -227,10 +229,10 @@ const Deposit = () => {
   return (
     <>
       <Helmet>
-        <title>Nạp tiền - GOODTEAM</title>
+        <title>{t('deposit.pageTitle')}</title>
         <meta
           name="description"
-          content="Nạp tiền vào tài khoản KeyStore qua chuyển khoản ngân hàng, VNPay hoặc MoMo."
+          content={t('deposit.metaDescription')}
         />
       </Helmet>
 
@@ -244,13 +246,13 @@ const Deposit = () => {
               <div className="text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/30 mb-6">
                   <Wallet className="w-4 h-4 text-accent" />
-                  <span className="text-sm font-medium">Nạp tiền tài khoản</span>
+                  <span className="text-sm font-medium">{t('deposit.badge')}</span>
                 </div>
                 <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
-                  <span className="text-gradient">Nạp tiền vào tài khoản</span>
+                  <span className="text-gradient">{t('deposit.heading')}</span>
                 </h1>
                 <p className="text-muted-foreground max-w-xl mx-auto">
-                  Chọn phương thức nạp tiền phù hợp. Tiền sẽ được cộng vào tài khoản sau khi xác nhận.
+                  {t('deposit.description')}
                 </p>
               </div>
             </div>
@@ -402,14 +404,14 @@ const Deposit = () => {
                               <div className="relative">
                                 <Clock className="w-6 h-6 text-primary animate-pulse" />
                               </div>
-                              <p className="font-medium text-primary">Đang chờ xác nhận giao dịch...</p>
+                              <p className="font-medium text-primary">{t('deposit.waitingConfirmation')}</p>
                             </div>
                             
                             <p className="text-sm text-muted-foreground text-center mb-4">
-                              Hệ thống sẽ tự động kiểm tra và cộng tiền khi phát hiện giao dịch của bạn.
+                              {t('deposit.autoCheckDesc')}
                               {checkCount > 0 && (
                                 <span className="block mt-1 text-xs">
-                                  Đã kiểm tra {checkCount} lần
+                                  {t('deposit.checkedTimes').replace('{count}', checkCount.toString())}
                                 </span>
                               )}
                             </p>
@@ -424,12 +426,12 @@ const Deposit = () => {
                                 {isChecking ? (
                                   <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Đang kiểm tra...
+                                    {t('deposit.checking')}
                                   </>
                                 ) : (
                                   <>
                                     <RefreshCw className="w-4 h-4 mr-2" />
-                                    Kiểm tra ngay
+                                    {t('deposit.checkNow')}
                                   </>
                                 )}
                               </Button>
@@ -438,7 +440,7 @@ const Deposit = () => {
                                 className="flex-1"
                                 onClick={() => navigate('/profile')}
                               >
-                                Xem lịch sử nạp tiền
+                                {t('deposit.viewHistory')}
                               </Button>
                             </div>
                           </div>
@@ -544,7 +546,7 @@ const Deposit = () => {
                             <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 mt-4 w-full">
                               <div className="flex items-center justify-center gap-2 mb-3">
                                 <Clock className="w-6 h-6 text-primary animate-pulse" />
-                                <p className="font-medium text-primary">Đang chờ xác nhận...</p>
+                                <p className="font-medium text-primary">{t('deposit.waitingConfirmationShort')}</p>
                               </div>
                               <Button 
                                 variant="outline" 

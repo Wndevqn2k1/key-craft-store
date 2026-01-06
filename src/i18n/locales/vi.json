@@ -64,6 +64,31 @@
     "emailInUse": "Email đã được sử dụng",
     "phoneInUse": "Số điện thoại đã được sử dụng"
   },
+  "home": {
+    "featuredProducts": "SẢN PHẨM",
+    "featuredHighlight": "NỔI BẬT",
+    "featuredDescription": "Key bản quyền chính hãng với giá tốt nhất. Giao key tự động 24/7, bảo hành uy tín.",
+    "allCategories": "Tất cả",
+    "viewAllProducts": "Xem tất cả sản phẩm",
+    "from": "Từ",
+    "viewDetails": "Xem chi tiết",
+    "resellerPrice": "Giá Reseller",
+    "contact": "Liên hệ"
+  },
+  "hero": {
+    "badge": "Giao key tự động 24/7",
+    "title1": "KEY BẢN QUYỀN",
+    "title2": "CHÍNH HÃNG",
+    "description": "Cung cấp key phần mềm, game, tài khoản premium với giá tốt nhất. Kích hoạt nhanh chóng, bảo hành uy tín, hỗ trợ tận tình.",
+    "exploreNow": "Khám phá ngay",
+    "depositNow": "Nạp tiền",
+    "instantDelivery": "Giao hàng tức thì",
+    "instantDeliveryDesc": "Nhận key ngay sau thanh toán",
+    "reliableWarranty": "Bảo hành uy tín",
+    "reliableWarrantyDesc": "Cam kết đổi trả 100%",
+    "bestPrice": "Giá tốt nhất",
+    "bestPriceDesc": "Rẻ hơn thị trường 20%"
+  },
   "product": {
     "title": "Sản phẩm",
     "allProducts": "Tất cả sản phẩm",
@@ -139,7 +164,23 @@
     "submitRequest": "Gửi yêu cầu",
     "pendingApproval": "Đang chờ duyệt",
     "approved": "Đã duyệt",
-    "rejected": "Từ chối"
+    "rejected": "Từ chối",
+    "pageTitle": "Nạp tiền - GOODTEAM",
+    "metaDescription": "Nạp tiền vào tài khoản KeyStore qua chuyển khoản ngân hàng, VNPay hoặc MoMo.",
+    "loginRequired": "Bạn cần đăng nhập để nạp tiền vào tài khoản",
+    "badge": "Nạp tiền tài khoản",
+    "heading": "Nạp tiền vào tài khoản",
+    "description": "Chọn phương thức nạp tiền phù hợp. Tiền sẽ được cộng vào tài khoản sau khi xác nhận.",
+    "successTitle": "Nạp tiền thành công!",
+    "pendingDesc": "Yêu cầu nạp tiền của bạn đang chờ xử lý. Vui lòng chuyển khoản theo thông tin đã cung cấp.",
+    "errorDesc": "Không thể tạo yêu cầu nạp tiền. Vui lòng thử lại.",
+    "viewHistory": "Xem lịch sử nạp tiền",
+    "waitingConfirmation": "Đang chờ xác nhận giao dịch...",
+    "autoCheckDesc": "Hệ thống sẽ tự động kiểm tra và cộng tiền khi phát hiện giao dịch của bạn.",
+    "checkedTimes": "Đã kiểm tra {count} lần",
+    "checking": "Đang kiểm tra...",
+    "checkNow": "Kiểm tra ngay",
+    "waitingConfirmationShort": "Đang chờ xác nhận..."
   },
   "profile": {
     "title": "Tài khoản",

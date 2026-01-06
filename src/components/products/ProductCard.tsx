@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Product } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
 import { useIsReseller } from "@/hooks/useUserRole";
+import { useTranslation } from "react-i18next";
 
 interface ProductCardProps {
   product: Product;
@@ -13,6 +14,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
+  const { t } = useTranslation();
   const { addToCart } = useCart();
   const isReseller = useIsReseller();
   
@@ -125,7 +127,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             <Star className="w-4 h-4 fill-accent text-accent" />
             <span className="text-sm font-medium">{product.rating || 5}</span>
           </div>
-          <span className="text-xs text-muted-foreground">({product.reviews_count || 0} đánh giá)</span>
+          <span className="text-xs text-muted-foreground">({product.reviews_count || 0} {t('product.reviews')})</span>
         </div>
 
         {/* Price Tiers Preview */}
@@ -152,20 +154,20 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             {isReseller && (
               <div className="flex items-center gap-1 mb-1">
                 <Tag className="w-3 h-3 text-green-600" />
-                <span className="text-xs font-medium text-green-600">Giá Reseller</span>
+                <span className="text-xs font-medium text-green-600">{t('home.resellerPrice')}</span>
               </div>
             )}
-            <p className="text-xs text-muted-foreground">Từ</p>
+            <p className="text-xs text-muted-foreground">{t('home.from')}</p>
             <motion.p
               whileHover={{ scale: 1.05 }}
               className="font-display font-bold text-xl text-primary"
             >
-              {lowestPrice > 0 ? formatPrice(lowestPrice) : 'Liên hệ'}
+              {lowestPrice > 0 ? formatPrice(lowestPrice) : t('home.contact')}
             </motion.p>
           </div>
           <Link to={`/product/${product.id}`}>
             <Button size="sm" className="glow-primary">
-              Xem chi tiết
+              {t('home.viewDetails')}
             </Button>
           </Link>
         </div>

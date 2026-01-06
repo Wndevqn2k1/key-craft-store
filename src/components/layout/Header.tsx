@@ -83,7 +83,7 @@ export function Header() {
               to="/deposit"
               className="px-3 py-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
             >
-              Nạp tiền
+              {t('nav.deposit')}
             </Link>
           </nav>
 
@@ -208,7 +208,7 @@ export function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Wallet className="w-4 h-4" />
-                Nạp tiền
+                {t('nav.deposit')}
               </Link>
 
               {/* Divider */}

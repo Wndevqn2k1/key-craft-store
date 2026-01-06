@@ -1,8 +1,10 @@
 import { ArrowRight, Zap, Shield, Clock, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export function HeroSection() {
+  const { t } = useTranslation();
   return (
     <section className="relative min-h-[80vh] flex items-center overflow-hidden">
       {/* Background Effects */}
@@ -28,7 +30,7 @@ export function HeroSection() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/30 mb-8 animate-fade-in">
             <Zap className="w-4 h-4 text-accent" />
-            <span className="text-sm font-medium">Giao key tự động 24/7</span>
+            <span className="text-sm font-medium">{t('hero.badge')}</span>
           </div>
 
           {/* Title */}
@@ -36,9 +38,9 @@ export function HeroSection() {
             className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in"
             style={{ animationDelay: "0.1s" }}
           >
-            <span className="text-foreground">KEY BẢN QUYỀN</span>
+            <span className="text-foreground">{t('hero.title1')}</span>
             <br />
-            <span className="text-gradient">CHÍNH HÃNG</span>
+            <span className="text-gradient">{t('hero.title2')}</span>
           </h1>
 
           {/* Description */}
@@ -46,8 +48,7 @@ export function HeroSection() {
             className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in"
             style={{ animationDelay: "0.2s" }}
           >
-            Cung cấp key phần mềm, game, tài khoản premium với giá tốt nhất. Kích hoạt nhanh chóng, bảo hành uy tín, hỗ
-            trợ tận tình.
+            {t('hero.description')}
           </p>
 
           {/* CTA Buttons */}
@@ -60,7 +61,7 @@ export function HeroSection() {
               className="font-display text-lg px-8 glow-primary group"
               onClick={() => document.getElementById("featured-products")?.scrollIntoView({ behavior: "smooth" })}
             >
-              Khám phá ngay
+              {t('hero.exploreNow')}
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Link to="/deposit">
@@ -70,7 +71,7 @@ export function HeroSection() {
                 className="font-display text-lg px-8 hover:border-primary hover:text-primary"
               >
                 <Wallet className="w-5 h-5 mr-2" />
-                Nạp tiền
+                {t('hero.depositNow')}
               </Button>
             </Link>
           </div>
@@ -82,8 +83,8 @@ export function HeroSection() {
                 <Clock className="w-6 h-6 text-primary" />
               </div>
               <div className="text-left">
-                <p className="font-semibold">Giao hàng tức thì</p>
-                <p className="text-sm text-muted-foreground">Nhận key ngay sau thanh toán</p>
+                <p className="font-semibold">{t('hero.instantDelivery')}</p>
+                <p className="text-sm text-muted-foreground">{t('hero.instantDeliveryDesc')}</p>
               </div>
             </div>
             <div className="flex items-center justify-center gap-3 p-4 rounded-xl glass">
@@ -91,8 +92,8 @@ export function HeroSection() {
                 <Shield className="w-6 h-6 text-primary" />
               </div>
               <div className="text-left">
-                <p className="font-semibold">Bảo hành uy tín</p>
-                <p className="text-sm text-muted-foreground">Cam kết đổi trả 100%</p>
+                <p className="font-semibold">{t('hero.reliableWarranty')}</p>
+                <p className="text-sm text-muted-foreground">{t('hero.reliableWarrantyDesc')}</p>
               </div>
             </div>
             <div className="flex items-center justify-center gap-3 p-4 rounded-xl glass">
@@ -100,8 +101,8 @@ export function HeroSection() {
                 <Zap className="w-6 h-6 text-primary" />
               </div>
               <div className="text-left">
-                <p className="font-semibold">Giá tốt nhất</p>
-                <p className="text-sm text-muted-foreground">Rẻ hơn thị trường 20%</p>
+                <p className="font-semibold">{t('hero.bestPrice')}</p>
+                <p className="text-sm text-muted-foreground">{t('hero.bestPriceDesc')}</p>
               </div>
             </div>
           </div>

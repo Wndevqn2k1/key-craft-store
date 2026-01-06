@@ -22,7 +22,8 @@
     "admin": "Admin",
     "login": "Login",
     "logout": "Logout",
-    "balance": "Balance"
+    "balance": "Balance",
+    "deposit": "Deposit"
   },
   "auth": {
     "login": "Login",
@@ -58,8 +59,34 @@
     "emailInUse": "Email already in use",
     "phoneInUse": "Phone number already in use"
   },
+  "home": {
+    "featuredProducts": "FEATURED",
+    "featuredHighlight": "PRODUCTS",
+    "featuredDescription": "Genuine licensed keys at the best prices. Automatic key delivery 24/7, reliable warranty.",
+    "allCategories": "All",
+    "viewAllProducts": "View All Products",
+    "from": "From",
+    "viewDetails": "View Details",
+    "resellerPrice": "Reseller Price",
+    "contact": "Contact"
+  },
+  "hero": {
+    "badge": "Automatic key delivery 24/7",
+    "title1": "LICENSED KEYS",
+    "title2": "GENUINE",
+    "description": "Providing software keys, games, premium accounts at the best prices. Fast activation, reliable warranty, dedicated support.",
+    "exploreNow": "Explore Now",
+    "depositNow": "Deposit",
+    "instantDelivery": "Instant Delivery",
+    "instantDeliveryDesc": "Get your key right after payment",
+    "reliableWarranty": "Reliable Warranty",
+    "reliableWarrantyDesc": "100% refund guarantee",
+    "bestPrice": "Best Price",
+    "bestPriceDesc": "20% cheaper than market"
+  },
   "product": {
     "title": "Products",
+    "allProducts": "All Products",
     "price": "Price",
     "stock": "In Stock",
     "outOfStock": "Out of Stock",
@@ -69,7 +96,11 @@
     "category": "Category",
     "reviews": "Reviews",
     "rating": "Rating",
-    "quantity": "Quantity"
+    "quantity": "Quantity",
+    "selectTier": "Select Plan",
+    "productDetails": "Product Details",
+    "relatedProducts": "Related Products",
+    "noProducts": "No products available"
   },
   "cart": {
     "title": "Shopping Cart",
@@ -91,6 +122,49 @@
     "pending": "Pending",
     "completed": "Completed",
     "cancelled": "Cancelled"
+  },
+  "deposit": {
+    "title": "Deposit",
+    "currentBalance": "Current Balance",
+    "amount": "Deposit Amount",
+    "enterAmount": "Enter Amount",
+    "bankTransfer": "Bank Transfer",
+    "bankInfo": "Bank Information",
+    "accountNumber": "Account Number",
+    "accountName": "Account Name",
+    "transferContent": "Transfer Note",
+    "uploadProof": "Upload Proof",
+    "submitRequest": "Submit Request",
+    "pendingApproval": "Pending Approval",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "pageTitle": "Deposit - GOODTEAM",
+    "metaDescription": "Deposit funds into your KeyStore account via bank transfer, VNPay or MoMo.",
+    "loginRequired": "You need to login to deposit funds into your account",
+    "badge": "Account Deposit",
+    "heading": "Deposit to Account",
+    "description": "Choose a suitable deposit method. Funds will be added to your account after confirmation.",
+    "successTitle": "Deposit Successful!",
+    "pendingDesc": "Your deposit request is being processed. Please transfer according to the provided information.",
+    "errorDesc": "Unable to create deposit request. Please try again.",
+    "viewHistory": "View Deposit History",
+    "waitingConfirmation": "Waiting for transaction confirmation...",
+    "autoCheckDesc": "The system will automatically check and add funds when your transaction is detected.",
+    "checkedTimes": "Checked {count} times",
+    "checking": "Checking...",
+    "checkNow": "Check Now",
+    "waitingConfirmationShort": "Waiting for confirmation..."
+  },
+  "profile": {
+    "title": "Profile",
+    "personalInfo": "Personal Information",
+    "orderHistory": "Order History",
+    "depositHistory": "Deposit History",
+    "viewRequests": "View your deposit requests",
+    "noDeposits": "No deposit requests yet",
+    "depositNow": "Deposit Now",
+    "noOrders": "No orders yet",
+    "viewOrderDetails": "Review purchased orders and keys"
   },
   "admin": {
     "dashboard": "Dashboard",
