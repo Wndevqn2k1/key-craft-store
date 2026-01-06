@@ -14,8 +14,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { MiniCart } from "@/components/cart/MiniCart";
 import { SearchWithAutocomplete } from "@/components/search/SearchWithAutocomplete";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 export function Header() {
+  const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [balance, setBalance] = useState(0);
@@ -68,13 +71,13 @@ export function Header() {
               to="/products"
               className="px-3 py-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
             >
-              Sản phẩm
+              {t('nav.products')}
             </Link>
             <Link
               to="/about"
               className="px-3 py-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
             >
-              Giới thiệu
+              {t('nav.about')}
             </Link>
             <Link
               to="/deposit"
@@ -114,6 +117,9 @@ export function Header() {
             {/* Cart - Now using MiniCart */}
             <MiniCart />
 
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+
             {/* Desktop User Actions - Hidden on mobile */}
             <div className="hidden md:flex items-center gap-2">
               {user ? (
@@ -127,14 +133,14 @@ export function Header() {
                     <DropdownMenuItem asChild>
                       <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
                         <User className="w-4 h-4" />
-                        Tài khoản
+                        {t('nav.profile')}
                       </Link>
                     </DropdownMenuItem>
                     {isAdmin && (
                       <DropdownMenuItem asChild>
                         <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
                           <Settings className="w-4 h-4" />
-                          Quản trị
+                          {t('nav.admin')}
                         </Link>
                       </DropdownMenuItem>
                     )}
@@ -144,14 +150,14 @@ export function Header() {
                       className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
                     >
                       <LogOut className="w-4 h-4" />
-                      Đăng xuất
+                      {t('nav.logout')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
                 <Link to="/auth">
                   <Button variant="default" size="sm">
-                    Đăng nhập
+                    {t('nav.login')}
                   </Button>
                 </Link>
               )}
@@ -186,7 +192,7 @@ export function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <ShoppingCart className="w-4 h-4" />
-                Sản phẩm
+                {t('nav.products')}
               </Link>
               <Link
                 to="/about"
@@ -194,7 +200,7 @@ export function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Info className="w-4 h-4" />
-                Giới thiệu
+                {t('nav.about')}
               </Link>
               <Link
                 to="/deposit"
@@ -217,7 +223,7 @@ export function Header() {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <User className="w-4 h-4" />
-                    Tài khoản
+                    {t('nav.profile')}
                   </Link>
                   {isAdmin && (
                     <Link
@@ -226,7 +232,7 @@ export function Header() {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <Menu className="w-4 h-4" />
-                      Quản trị
+                      {t('nav.admin')}
                     </Link>
                   )}
                   <button
@@ -237,7 +243,7 @@ export function Header() {
                     className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full text-left"
                   >
                     <LogOut className="w-4 h-4" />
-                    Đăng xuất
+                    {t('nav.logout')}
                   </button>
                 </>
               ) : (
@@ -247,7 +253,7 @@ export function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <User className="w-4 h-4" />
-                  Đăng nhập
+                  {t('nav.login')}
                 </Link>
               )}
             </div>

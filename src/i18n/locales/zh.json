@@ -1,0 +1,105 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "search": "搜索",
+    "filter": "筛选",
+    "close": "关闭",
+    "viewMore": "查看更多",
+    "backToHome": "返回首页"
+  },
+  "nav": {
+    "home": "首页",
+    "products": "产品",
+    "about": "关于我们",
+    "cart": "购物车",
+    "profile": "个人中心",
+    "admin": "管理",
+    "login": "登录",
+    "logout": "退出",
+    "balance": "余额"
+  },
+  "auth": {
+    "login": "登录",
+    "register": "注册",
+    "email": "邮箱",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "fullName": "姓名",
+    "phone": "电话号码",
+    "forgotPassword": "忘记密码？",
+    "noAccount": "还没有账号？",
+    "hasAccount": "已有账号？",
+    "signUp": "立即注册",
+    "signIn": "立即登录"
+  },
+  "product": {
+    "title": "产品",
+    "price": "价格",
+    "stock": "有货",
+    "outOfStock": "缺货",
+    "addToCart": "加入购物车",
+    "buyNow": "立即购买",
+    "description": "描述",
+    "category": "类别",
+    "reviews": "评价",
+    "rating": "评分",
+    "quantity": "数量"
+  },
+  "cart": {
+    "title": "购物车",
+    "empty": "购物车是空的",
+    "total": "总计",
+    "checkout": "结账",
+    "continueShopping": "继续购物",
+    "remove": "删除",
+    "updateQuantity": "更新数量"
+  },
+  "order": {
+    "title": "订单",
+    "myOrders": "我的订单",
+    "orderHistory": "订单历史",
+    "orderDetails": "订单详情",
+    "orderNumber": "订单号",
+    "orderDate": "订单日期",
+    "status": "状态",
+    "pending": "处理中",
+    "completed": "已完成",
+    "cancelled": "已取消"
+  },
+  "admin": {
+    "dashboard": "仪表板",
+    "users": "用户",
+    "products": "产品",
+    "orders": "订单",
+    "settings": "设置",
+    "statistics": "统计",
+    "revenue": "收入",
+    "manageUsers": "管理用户",
+    "manageProducts": "管理产品",
+    "manageOrders": "管理订单"
+  },
+  "notification": {
+    "title": "通知",
+    "newOrder": "新订单",
+    "orderCompleted": "订单完成",
+    "depositApproved": "充值成功",
+    "noNotifications": "没有新通知",
+    "markAllRead": "全部标记为已读"
+  },
+  "review": {
+    "title": "评价",
+    "writeReview": "写评价",
+    "yourRating": "您的评分",
+    "yourReview": "您的评价",
+    "submit": "提交评价",
+    "helpful": "有帮助",
+    "notHelpful": "没有帮助",
+    "verified": "已验证购买"
+  }
+}

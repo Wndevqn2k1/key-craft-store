@@ -1,0 +1,105 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "viewMore": "View More",
+    "backToHome": "Back to Home"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "about": "About",
+    "cart": "Cart",
+    "profile": "Profile",
+    "admin": "Admin",
+    "login": "Login",
+    "logout": "Logout",
+    "balance": "Balance"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "fullName": "Full Name",
+    "phone": "Phone Number",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signUp": "Sign up",
+    "signIn": "Sign in"
+  },
+  "product": {
+    "title": "Products",
+    "price": "Price",
+    "stock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "description": "Description",
+    "category": "Category",
+    "reviews": "Reviews",
+    "rating": "Rating",
+    "quantity": "Quantity"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Cart is empty",
+    "total": "Total",
+    "checkout": "Checkout",
+    "continueShopping": "Continue Shopping",
+    "remove": "Remove",
+    "updateQuantity": "Update Quantity"
+  },
+  "order": {
+    "title": "Orders",
+    "myOrders": "My Orders",
+    "orderHistory": "Order History",
+    "orderDetails": "Order Details",
+    "orderNumber": "Order Number",
+    "orderDate": "Order Date",
+    "status": "Status",
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "products": "Products",
+    "orders": "Orders",
+    "settings": "Settings",
+    "statistics": "Statistics",
+    "revenue": "Revenue",
+    "manageUsers": "Manage Users",
+    "manageProducts": "Manage Products",
+    "manageOrders": "Manage Orders"
+  },
+  "notification": {
+    "title": "Notifications",
+    "newOrder": "New Order",
+    "orderCompleted": "Order Completed",
+    "depositApproved": "Deposit Approved",
+    "noNotifications": "No new notifications",
+    "markAllRead": "Mark all as read"
+  },
+  "review": {
+    "title": "Reviews",
+    "writeReview": "Write a Review",
+    "yourRating": "Your Rating",
+    "yourReview": "Your Review",
+    "submit": "Submit Review",
+    "helpful": "Helpful",
+    "notHelpful": "Not Helpful",
+    "verified": "Verified Purchase"
+  }
+}
