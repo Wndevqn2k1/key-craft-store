@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 import { 
   User, 
   Wallet, 
@@ -32,6 +33,7 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 
 const Profile = () => {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -324,10 +326,10 @@ const Profile = () => {
                     <CardHeader>
                       <CardTitle className="font-display flex items-center gap-2">
                         <Wallet className="w-5 h-5 text-primary" />
-                        Lịch sử nạp tiền
+                        {t('profile.depositHistory')}
                       </CardTitle>
                       <CardDescription>
-                        Xem lại các yêu cầu nạp tiền của bạn
+                        {t('profile.viewRequests')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -338,13 +340,13 @@ const Profile = () => {
                       ) : deposits?.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground">
                           <Wallet className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                          <p>Chưa có yêu cầu nạp tiền nào</p>
+                          <p>{t('profile.noDeposits')}</p>
                           <Button 
                             variant="link" 
                             onClick={() => navigate('/deposit')}
                             className="mt-2"
                           >
-                            Nạp tiền ngay
+                            {t('profile.depositNow')}
                           </Button>
                         </div>
                       ) : (
@@ -382,10 +384,10 @@ const Profile = () => {
                     <CardHeader>
                       <CardTitle className="font-display flex items-center gap-2">
                         <Key className="w-5 h-5 text-primary" />
-                        Lịch sử mua hàng
+                        {t('profile.orderHistory')}
                       </CardTitle>
                       <CardDescription>
-                        Xem lại các đơn hàng và key đã mua
+                        {t('profile.viewOrderDetails')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -396,7 +398,7 @@ const Profile = () => {
                       ) : orders?.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground">
                           <Key className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                          <p>Chưa có đơn hàng nào</p>
+                          <p>{t('profile.noOrders')}</p>
                           <Button 
                             variant="link" 
                             onClick={() => navigate('/products')}
