@@ -104,23 +104,22 @@ const ProductDetail = () => {
           setSelectedTier(popularTier as PriceTier);
         }
 
-        // Fetch key stock counts
+        // Fetch key stock counts using secure RPC function
         if (tiersData && tiersData.length > 0) {
           const tierIds = tiersData.map(t => t.id);
           
-          // Direct query to count available keys (secure via RLS)
+          // Use secure RPC function to get stock counts
           const { data: stockData, error: stockError } = await supabase
-            .from('product_keys')
-            .select('price_tier_id')
-            .eq('product_id', productData.id)
-            .eq('status', 'available')
-            .in('price_tier_id', tierIds);
+            .rpc('get_available_keys_count', {
+              p_product_id: productData.id,
+              p_price_tier_ids: tierIds
+            });
 
           if (!stockError && stockData) {
             const stockMap: Record<string, number> = {};
             tierIds.forEach(id => { stockMap[id] = 0; });
-            stockData.forEach((item) => {
-              stockMap[item.price_tier_id] = (stockMap[item.price_tier_id] || 0) + 1;
+            stockData.forEach((item: any) => {
+              stockMap[item.price_tier_id] = Number(item.available_count);
             });
             setKeyStock(stockMap);
           } else if (stockError) {

@@ -79,13 +79,13 @@ const AdminUsers = () => {
   });
 
   const toggleAdminMutation = useMutation({
-    mutationFn: async ({ userId, newRole }: { userId: string; newRole: 'admin' | 'user' }) => {
+    mutationFn: async ({ userId, newRole }: { userId: string; newRole: 'admin' | 'user' | 'reseller' }) => {
       // Check if user_role exists first
       const { data: existingRole } = await supabase
         .from('user_roles')
         .select('user_id')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (existingRole) {
         // Update existing role
@@ -104,6 +104,7 @@ const AdminUsers = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['user-role'] }); // Invalidate user role cache
       toast({ title: 'Thành công', description: 'Đã cập nhật quyền người dùng' });
     },
     onError: (error) => {
@@ -191,6 +192,7 @@ const AdminUsers = () => {
   const getRoleLabel = (role: string) => {
     const labels: Record<string, string> = {
       admin: 'Quản trị viên',
+      reseller: 'Đại lý',
       user: 'Người dùng',
     };
     return labels[role] || role;
@@ -199,6 +201,7 @@ const AdminUsers = () => {
   const getRoleBadgeVariant = (role: string): 'default' | 'destructive' | 'secondary' => {
     const variants: Record<string, 'default' | 'destructive' | 'secondary'> = {
       admin: 'destructive',
+      reseller: 'default',
       user: 'secondary',
     };
     return variants[role] || 'secondary';
@@ -279,7 +282,7 @@ const AdminUsers = () => {
                             onValueChange={(newRole) => {
                               toggleAdminMutation.mutate({ 
                                 userId: user.id, 
-                                newRole: newRole as 'admin' | 'user' 
+                                newRole: newRole as 'admin' | 'user' | 'reseller'
                               });
                             }}
                           >
@@ -291,6 +294,12 @@ const AdminUsers = () => {
                                 <div className="flex items-center gap-2">
                                   <Users className="w-4 h-4" />
                                   <span>User</span>
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="reseller">
+                                <div className="flex items-center gap-2">
+                                  <UserCog className="w-4 h-4" />
+                                  <span>Reseller</span>
                                 </div>
                               </SelectItem>
                               <SelectItem value="admin">
