@@ -31,6 +31,8 @@ export interface Product {
   features: string[];
   badge: string | null;
   in_stock: boolean;
+  display_order?: number | null;
+  is_featured?: boolean | null;
   created_at: string;
   updated_at: string;
 }
@@ -40,10 +42,22 @@ export interface PriceTier {
   product_id: string;
   duration: string;
   duration_label: string;
+  name?: string;
   price: number;
-  reseller_price: number | null;
+  reseller_price?: number | null;
   original_price: number | null;
   is_popular: boolean;
+  created_at: string;
+}
+
+export interface ResellerProfile {
+  id: string;
+  user_id: string;
+  reseller_code: string;
+  status: 'pending' | 'active' | 'suspended';
+  note?: string | null;
+  approved_at?: string | null;
+  approved_by?: string | null;
   created_at: string;
 }
 

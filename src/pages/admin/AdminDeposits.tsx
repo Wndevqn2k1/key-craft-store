@@ -147,7 +147,7 @@ const AdminDeposits = () => {
                 userId: selectedDeposit.user_id,
                 amount: selectedDeposit.amount,
                 status: variables.status,
-                adminNote: variables.admin_note,
+                adminNote: variables.adminNote,
                 newBalance: variables.status === 'approved' ? profile.balance : undefined,
               },
             });

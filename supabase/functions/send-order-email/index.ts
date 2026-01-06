@@ -159,7 +159,7 @@ serve(async (req) => {
         recipient_email: userEmail,
         subject: `✅ Đơn hàng #${orderId?.slice(0, 8)} - Key của bạn đã sẵn sàng!`,
         status: 'failed',
-        error_message: error.message,
+        error_message: error instanceof Error ? error.message : 'Unknown error',
         metadata: { order_id: orderId },
       })
     } catch (logError) {
@@ -169,7 +169,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error' 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

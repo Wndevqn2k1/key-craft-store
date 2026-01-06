@@ -44,11 +44,15 @@ export default function AdminResellerPrices() {
   // Update reseller prices mutation
   const updatePricesMutation = useMutation({
     mutationFn: async (updates: Array<{ id: string; reseller_price: number }>) => {
-      const { error } = await supabase
-        .from('price_tiers')
-        .upsert(updates.map(u => ({ id: u.id, reseller_price: u.reseller_price })));
-
-      if (error) throw error;
+      // Update each price tier individually using SQL
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('price_tiers')
+          .update({ original_price: update.reseller_price })
+          .eq('id', update.id);
+        
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-reseller-prices'] });
@@ -135,7 +139,6 @@ export default function AdminResellerPrices() {
       <AdminPageHeader
         title="Quản lý Giá Reseller"
         description="Thiết lập giá đặc biệt cho reseller"
-        icon={DollarSign}
       />
 
       <div className="grid gap-6 mb-6 md:grid-cols-3">
