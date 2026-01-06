@@ -184,8 +184,9 @@ const AdminUsers = () => {
     return user.user_roles?.some((role: any) => role.role === 'admin');
   };
 
-  const getUserRole = (user: any): 'admin' | 'user' => {
+  const getUserRole = (user: any): 'admin' | 'reseller' | 'user' => {
     if (user.user_roles?.some((role: any) => role.role === 'admin')) return 'admin';
+    if (user.user_roles?.some((role: any) => role.role === 'reseller')) return 'reseller';
     return 'user';
   };
 
