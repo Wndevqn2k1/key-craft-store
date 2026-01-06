@@ -156,10 +156,12 @@ const AdminUsers = () => {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      // Delete user roles first
-      await supabase.from('user_roles').delete().eq('user_id', userId);
-      // Delete profile
-      const { error } = await supabase.from('profiles').delete().eq('id', userId);
+      // Delete profile - trigger will automatically delete auth.users
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+      
       if (error) throw error;
     },
     onSuccess: () => {
