@@ -12,16 +12,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ImageLightbox, useImageLightbox } from '@/components/ui/image-lightbox';
-import { ReviewForm } from '@/components/products/ReviewForm';
-import { ReviewList } from '@/components/products/ReviewList';
-import { useTranslation } from 'react-i18next';
-import { 
-  Star, 
-  ShoppingCart, 
-  Check, 
-  ChevronLeft, 
+import {
+  Star,
+  ShoppingCart,
+  Check,
+  ChevronLeft,
   ChevronRight,
   Package,
   Shield,
@@ -39,7 +35,6 @@ interface ProductImage {
 }
 
 const ProductDetail = () => {
-  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -53,7 +48,7 @@ const ProductDetail = () => {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
+
   // Image Lightbox hook
   const { isOpen, currentIndex, openLightbox, closeLightbox} = useImageLightbox();
 
@@ -102,29 +97,30 @@ const ProductDetail = () => {
         };
 
         setProduct(productWithTiers);
-        
+
         // Set default selected tier (popular one or first)
         const popularTier = tiersData?.find(t => t.is_popular) || tiersData?.[0];
         if (popularTier) {
           setSelectedTier(popularTier as PriceTier);
         }
 
-        // Fetch key stock counts using secure RPC function
+        // Fetch key stock counts
         if (tiersData && tiersData.length > 0) {
           const tierIds = tiersData.map(t => t.id);
-          
-          // Use secure RPC function to get stock counts
+
+          // Direct query to count available keys (secure via RLS)
           const { data: stockData, error: stockError } = await supabase
-            .rpc('get_available_keys_count', {
-              p_product_id: productData.id,
-              p_price_tier_ids: tierIds
-            });
+            .from('product_keys')
+            .select('price_tier_id')
+            .eq('product_id', productData.id)
+            .eq('status', 'available')
+            .in('price_tier_id', tierIds);
 
           if (!stockError && stockData) {
             const stockMap: Record<string, number> = {};
             tierIds.forEach(id => { stockMap[id] = 0; });
-            stockData.forEach((item: any) => {
-              stockMap[item.price_tier_id] = Number(item.available_count);
+            stockData.forEach((item) => {
+              stockMap[item.price_tier_id] = (stockMap[item.price_tier_id] || 0) + 1;
             });
             setKeyStock(stockMap);
           } else if (stockError) {
@@ -143,7 +139,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     if (!product || !selectedTier) return;
-    
+
     setIsAddingToCart(true);
     await addToCart(product.id, selectedTier.id);
     setIsAddingToCart(false);
@@ -151,12 +147,12 @@ const ProductDetail = () => {
 
   const handleBuyNow = async () => {
     if (!product || !selectedTier) return;
-    
+
     if (!user) {
-      toast({ 
-        title: 'Vui lòng đăng nhập', 
+      toast({
+        title: 'Vui lòng đăng nhập',
         description: 'Bạn cần đăng nhập để thanh toán',
-        variant: 'destructive' 
+        variant: 'destructive'
       });
       navigate('/auth');
       return;
@@ -244,7 +240,7 @@ const ProductDetail = () => {
           <div className="space-y-4">
             {/* Main Image */}
             <div className="relative">
-              <div 
+              <div
                 className="aspect-video rounded-xl overflow-hidden bg-card border border-border cursor-pointer group"
                 onClick={() => openLightbox(currentImageIndex)}
               >
@@ -268,7 +264,7 @@ const ProductDetail = () => {
                   {product.badge}
                 </Badge>
               )}
-              
+
               {/* Navigation Arrows */}
               {allImages.length > 1 && (
                 <>
@@ -301,8 +297,8 @@ const ProductDetail = () => {
                     onClick={() => setCurrentImageIndex(index)}
                     className={cn(
                       'flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all',
-                      index === currentImageIndex 
-                        ? 'border-primary' 
+                      index === currentImageIndex
+                        ? 'border-primary'
                         : 'border-border hover:border-primary/50'
                     )}
                   >
@@ -367,7 +363,7 @@ const ProductDetail = () => {
                   {product.price_tiers.map((tier) => {
                     const stock = keyStock[tier.id] || 0;
                     const isSelected = selectedTier?.id === tier.id;
-                    
+
                     return (
                       <Card
                         key={tier.id}
@@ -453,66 +449,56 @@ const ProductDetail = () => {
               <Button
                 size="lg"
                 className="flex-1 w-full sm:w-auto"
-                disabled={!selectedTier || (keyStock[selectedTier?.id || ''] || 0) === 0}
+                disabled={!selectedTier || (keyStock[selectedTier?.id || ''] || 0) === 0 || isAddingToCart}
                 onClick={handleBuyNow}
               >
                 <CreditCard className="mr-2 h-5 w-5" />
-                Thanh toán ngay
+                Mua ngay
               </Button>
             </div>
 
             {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 border-t border-border">
-              <div className="flex flex-col items-center text-center">
-                <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary mb-1" />
-                <span className="text-[10px] sm:text-xs text-muted-foreground">Key chính hãng</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-border">
+              <div className="flex flex-col items-center text-center p-3 rounded-lg bg-muted/50">
+                <Package className="h-5 w-5 text-primary mb-1" />
+                <span className="text-xs text-muted-foreground">Giao key tự động</span>
               </div>
-              <div className="flex flex-col items-center text-center">
-                <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-primary mb-1" />
-                <span className="text-[10px] sm:text-xs text-muted-foreground">Giao ngay</span>
+              <div className="flex flex-col items-center text-center p-3 rounded-lg bg-muted/50">
+                <Shield className="h-5 w-5 text-primary mb-1" />
+                <span className="text-xs text-muted-foreground">Bảo hành 100%</span>
               </div>
-              <div className="flex flex-col items-center text-center">
-                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary mb-1" />
-                <span className="text-[10px] sm:text-xs text-muted-foreground">Hỗ trợ 24/7</span>
+              <div className="flex flex-col items-center text-center p-3 rounded-lg bg-muted/50">
+                <Zap className="h-5 w-5 text-primary mb-1" />
+                <span className="text-xs text-muted-foreground">Kích hoạt nhanh</span>
+              </div>
+              <div className="flex flex-col items-center text-center p-3 rounded-lg bg-muted/50">
+                <Clock className="h-5 w-5 text-primary mb-1" />
+                <span className="text-xs text-muted-foreground">Hỗ trợ 24/7</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Product Description & Reviews Section */}
-        <Tabs defaultValue="description" className="mt-8 sm:mt-12">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="description">{t('product.description')}</TabsTrigger>
-            <TabsTrigger value="reviews">{t('review.title')}</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="description" className="mt-6">
-            {product.description && (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="prose prose-sm max-w-none text-muted-foreground">
-                    <p className="whitespace-pre-line">{product.description}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="reviews" className="mt-6 space-y-6">
-            <ReviewForm productId={product.id} />
-            <ReviewList productId={product.id} />
-          </TabsContent>
-        </Tabs>
+        {/* Description */}
+        {product.description && (
+          <div className="mt-12 bg-card rounded-xl border border-border p-6">
+            <h2 className="text-xl font-bold text-foreground mb-4">Mô tả sản phẩm</h2>
+            <div className="prose prose-sm max-w-none text-muted-foreground">
+              {product.description.split('\n').map((line, index) => (
+                <p key={index}>{line}</p>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
-      
-      {/* Image Lightbox */}
+
+      {/* Lightbox */}
       <ImageLightbox
         images={allImages.map(img => img.image_url)}
-        currentIndex={currentIndex}
         isOpen={isOpen}
+        currentIndex={currentIndex}
         onClose={closeLightbox}
       />
-      
       <Footer />
     </div>
   );

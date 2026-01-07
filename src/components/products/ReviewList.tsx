@@ -14,6 +14,20 @@ interface ReviewListProps {
   productId: string;
 }
 
+interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  verified_purchase: boolean;
+  helpful_count: number;
+  created_at: string;
+  profiles: {
+    id: string;
+    full_name: string;
+    avatar_url: string;
+  } | null;
+}
+
 export const ReviewList: React.FC<ReviewListProps> = ({ productId }) => {
   const { t, i18n } = useTranslation();
 
@@ -21,7 +35,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({ productId }) => {
     queryKey: ['product-reviews', productId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('product_reviews')
+        .from('product_reviews' as any)
         .select(`
           id,
           rating,
@@ -39,7 +53,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({ productId }) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as unknown as Review[];
     },
   });
 
@@ -113,7 +127,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({ productId }) => {
 
       {/* Reviews List */}
       <div className="space-y-4">
-        {reviews.map((review: any) => (
+        {reviews.map((review) => (
           <Card key={review.id}>
             <CardContent className="pt-6">
               <div className="flex gap-4">
