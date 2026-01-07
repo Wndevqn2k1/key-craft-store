@@ -51,7 +51,7 @@ const AdminUsers = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [topUpDialogOpen, setTopUpDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ full_name: '', phone: '', balance: '' });
+  const [editForm, setEditForm] = useState({ full_name: '', phone: '' });
   const [topUpAmount, setTopUpAmount] = useState('');
 
   const { data: users, isLoading } = useQuery({
@@ -79,13 +79,13 @@ const AdminUsers = () => {
   });
 
   const toggleAdminMutation = useMutation({
-    mutationFn: async ({ userId, newRole }: { userId: string; newRole: 'admin' | 'user' | 'reseller' }) => {
+    mutationFn: async ({ userId, newRole }: { userId: string; newRole: 'admin' | 'user' }) => {
       // Check if user_role exists first
       const { data: existingRole } = await supabase
         .from('user_roles')
         .select('user_id')
         .eq('user_id', userId)
-        .maybeSingle();
+        .single();
 
       if (existingRole) {
         // Update existing role
@@ -104,7 +104,6 @@ const AdminUsers = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      queryClient.invalidateQueries({ queryKey: ['user-role'] }); // Invalidate user role cache
       toast({ title: 'Thành công', description: 'Đã cập nhật quyền người dùng' });
     },
     onError: (error) => {
@@ -113,23 +112,10 @@ const AdminUsers = () => {
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: async ({ userId, data }: { userId: string; data: { full_name: string; phone: string; balance?: string } }) => {
-      const updateData: any = { 
-        full_name: data.full_name, 
-        phone: data.phone 
-      };
-      
-      // Only update balance if provided and valid
-      if (data.balance !== undefined && data.balance !== '') {
-        const balanceNum = parseFloat(data.balance);
-        if (!isNaN(balanceNum) && balanceNum >= 0) {
-          updateData.balance = balanceNum;
-        }
-      }
-      
+    mutationFn: async ({ userId, data }: { userId: string; data: { full_name: string; phone: string } }) => {
       const { error } = await supabase
         .from('profiles')
-        .update(updateData)
+        .update({ full_name: data.full_name, phone: data.phone })
         .eq('id', userId);
       if (error) throw error;
     },
@@ -138,30 +124,17 @@ const AdminUsers = () => {
       toast({ title: 'Thành công', description: 'Đã cập nhật thông tin người dùng' });
       setEditDialogOpen(false);
     },
-    onError: (error: any) => {
-      let message = error.message;
-      
-      // Handle unique constraint violations
-      if (error.message.includes('profiles_email_unique') || 
-          (error.message.includes('email') && error.message.includes('unique'))) {
-        message = 'Email này đã được sử dụng bởi tài khoản khác. Vui lòng sử dụng email khác.';
-      } else if (error.message.includes('profiles_phone_unique') || 
-                 (error.message.includes('phone') && error.message.includes('unique'))) {
-        message = 'Số điện thoại này đã được sử dụng bởi tài khoản khác. Vui lòng sử dụng số điện thoại khác.';
-      }
-      
-      toast({ title: 'Lỗi', description: message, variant: 'destructive' });
+    onError: (error) => {
+      toast({ title: 'Lỗi', description: error.message, variant: 'destructive' });
     },
   });
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      // Delete profile - trigger will automatically delete auth.users
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
-      
+      // Delete user roles first
+      await supabase.from('user_roles').delete().eq('user_id', userId);
+      // Delete profile
+      const { error } = await supabase.from('profiles').delete().eq('id', userId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -182,17 +155,17 @@ const AdminUsers = () => {
         .select('balance')
         .eq('id', userId)
         .single();
-      
+
       if (fetchError) throw fetchError;
-      
+
       const currentBalance = Number(profile?.balance) || 0;
       const newBalance = currentBalance + amount;
-      
+
       const { error } = await supabase
         .from('profiles')
         .update({ balance: newBalance })
         .eq('id', userId);
-      
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -210,16 +183,14 @@ const AdminUsers = () => {
     return user.user_roles?.some((role: any) => role.role === 'admin');
   };
 
-  const getUserRole = (user: any): 'admin' | 'reseller' | 'user' => {
+  const getUserRole = (user: any): 'admin' | 'user' => {
     if (user.user_roles?.some((role: any) => role.role === 'admin')) return 'admin';
-    if (user.user_roles?.some((role: any) => role.role === 'reseller')) return 'reseller';
     return 'user';
   };
 
   const getRoleLabel = (role: string) => {
     const labels: Record<string, string> = {
       admin: 'Quản trị viên',
-      reseller: 'Đại lý',
       user: 'Người dùng',
     };
     return labels[role] || role;
@@ -228,7 +199,6 @@ const AdminUsers = () => {
   const getRoleBadgeVariant = (role: string): 'default' | 'destructive' | 'secondary' => {
     const variants: Record<string, 'default' | 'destructive' | 'secondary'> = {
       admin: 'destructive',
-      reseller: 'default',
       user: 'secondary',
     };
     return variants[role] || 'secondary';
@@ -236,11 +206,7 @@ const AdminUsers = () => {
 
   const handleEdit = (user: any) => {
     setSelectedUser(user);
-    setEditForm({ 
-      full_name: user.full_name || '', 
-      phone: user.phone || '',
-      balance: user.balance?.toString() || '0'
-    });
+    setEditForm({ full_name: user.full_name || '', phone: user.phone || '' });
     setEditDialogOpen(true);
   };
 
@@ -311,9 +277,9 @@ const AdminUsers = () => {
                           <Select
                             value={userRole}
                             onValueChange={(newRole) => {
-                              toggleAdminMutation.mutate({ 
-                                userId: user.id, 
-                                newRole: newRole as 'admin' | 'user' | 'reseller'
+                              toggleAdminMutation.mutate({
+                                userId: user.id,
+                                newRole: newRole as 'admin' | 'user'
                               });
                             }}
                           >
@@ -325,12 +291,6 @@ const AdminUsers = () => {
                                 <div className="flex items-center gap-2">
                                   <Users className="w-4 h-4" />
                                   <span>User</span>
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="reseller">
-                                <div className="flex items-center gap-2">
-                                  <UserCog className="w-4 h-4" />
-                                  <span>Reseller</span>
                                 </div>
                               </SelectItem>
                               <SelectItem value="admin">
@@ -406,21 +366,6 @@ const AdminUsers = () => {
                 onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="balance">Số dư (VND)</Label>
-              <Input
-                id="balance"
-                type="number"
-                min="0"
-                step="1000"
-                value={editForm.balance}
-                onChange={(e) => setEditForm({ ...editForm, balance: e.target.value })}
-                placeholder="Nhập số dư mới"
-              />
-              <p className="text-xs text-muted-foreground">
-                Số dư hiện tại: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(selectedUser?.balance) || 0)}
-              </p>
-            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
@@ -479,7 +424,7 @@ const AdminUsers = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xoá người dùng</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xoá người dùng <strong>{selectedUser?.email}</strong>? 
+              Bạn có chắc chắn muốn xoá người dùng <strong>{selectedUser?.email}</strong>?
               Hành động này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>

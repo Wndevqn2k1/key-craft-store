@@ -48,14 +48,14 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
       if (existingReview) {
         // Update existing review
         const { error } = await supabase
-          .from('product_reviews')
+          .from('product_reviews' as any)
           .update({ rating, comment: comment.trim() })
           .eq('id', existingReview.id);
         if (error) throw error;
       } else {
         // Create new review
         const { error } = await supabase
-          .from('product_reviews')
+          .from('product_reviews' as any)
           .insert([reviewData]);
         if (error) throw error;
       }
